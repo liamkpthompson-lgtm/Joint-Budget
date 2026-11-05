@@ -324,6 +324,51 @@
           </table>
         </div>
       </div>
+
+      <!-- Joint Sub-Category Totals Breakdown -->
+      <div class="bg-indigo-50/50 border border-indigo-200 rounded-2xl p-4 sm:p-6 space-y-4 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-lg bg-white border border-indigo-200 flex items-center justify-center text-sm shadow-sm">📊</span>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Joint Sub-Category Totals Breakdown</h2>
+              <p class="text-[11px] text-slate-600 font-medium">Automatic totals grouped by sub-category (sorted highest to lowest budget)</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 self-end sm:self-auto">
+            <button type="button" onclick="scrollTable('hh-subcat-scroll', -260)" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-2xs">◀ Scroll</button>
+            <button type="button" onclick="scrollTable('hh-subcat-scroll', 260)" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-2xs">Scroll ▶</button>
+          </div>
+        </div>
+
+        <div id="hh-subcat-scroll" class="table-scroll-container rounded-xl border border-indigo-200 bg-white">
+          <table class="w-full text-xs sm:text-sm text-left border-collapse">
+            <thead class="text-slate-700 border-b border-indigo-200 uppercase text-[11px] bg-indigo-100/60">
+              <tr>
+                <th class="sticky left-0 z-20 bg-indigo-100 py-3 px-3 font-bold min-w-[180px] sm:min-w-[210px] sticky-col-shadow">Sub-Category / Group</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[85px]">% Share</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Monthly Budget</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Fortnightly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Weekly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[105px]">Actual Spend</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[120px]">Surplus / Rem</th>
+              </tr>
+            </thead>
+            <tbody id="hh-subcat-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+            <tfoot class="border-t-2 border-indigo-200 font-bold bg-indigo-50/90 text-slate-900">
+              <tr>
+                <td class="sticky left-0 z-20 bg-indigo-50 py-3 px-3 sticky-col-shadow">Total All Sub-Categories</td>
+                <td class="py-3 px-2.5 text-right text-slate-700">100.0%</td>
+                <td id="hh-subcat-tot-mo" class="py-3 px-2.5 text-right">$0.00</td>
+                <td id="hh-subcat-tot-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
+                <td id="hh-subcat-tot-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
+                <td id="hh-subcat-tot-act" class="py-3 px-2.5 text-right">$0.00</td>
+                <td id="hh-subcat-tot-rem" class="py-3 px-3 text-right text-emerald-700">$0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- ==================== TAB 2: LIAM'S DASHBOARD ==================== -->
@@ -1158,15 +1203,18 @@
       });
     }
 
-    // Render Joint Household Table (Sorted Highest to Lowest)
+    // Render Joint Household Table & Sub-Category Totals Breakdown
     function renderHousehold() {
       const tbody = document.getElementById('hh-category-tbody');
+      const subcatTbody = document.getElementById('hh-subcat-tbody');
       tbody.innerHTML = '';
+      subcatTbody.innerHTML = '';
 
       hhCategories.sort((a, b) => (Number(b.monthly) || 0) - (Number(a.monthly) || 0));
 
       let totMo = 0, totFn = 0, totWk = 0, totAct = 0;
       const filteredHhExp = hhExpenses.filter(e => e.date && e.date.startsWith(currentMonth));
+      const subcatMap = {};
 
       if (hhCategories.length === 0) {
         tbody.innerHTML = `
@@ -1188,6 +1236,29 @@
           totFn += fn;
           totWk += wk;
           totAct += actual;
+
+          // Aggregate by Sub-Category (group)
+          const rawGroup = (cat.group || 'General').trim() || 'General';
+          const groupKey = rawGroup.toLowerCase();
+          if (!subcatMap[groupKey]) {
+            subcatMap[groupKey] = {
+              name: rawGroup,
+              count: 0,
+              mo: 0,
+              fn: 0,
+              wk: 0,
+              actual: 0,
+              icons: []
+            };
+          }
+          subcatMap[groupKey].count += 1;
+          subcatMap[groupKey].mo += mo;
+          subcatMap[groupKey].fn += fn;
+          subcatMap[groupKey].wk += wk;
+          subcatMap[groupKey].actual += actual;
+          if (cat.icon && !subcatMap[groupKey].icons.includes(cat.icon)) {
+            subcatMap[groupKey].icons.push(cat.icon);
+          }
 
           tbody.innerHTML += `
             <tr class="group hover:bg-blue-50/40 transition bg-white">
@@ -1223,12 +1294,56 @@
         });
       }
 
+      // Render Sub-Category Totals Table (sorted highest to lowest by monthly budget)
+      const subcatList = Object.values(subcatMap).sort((a, b) => b.mo - a.mo);
+      if (subcatList.length === 0) {
+        subcatTbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-6 text-center text-slate-500 font-medium bg-white">
+              No sub-categories available.
+            </td>
+          </tr>
+        `;
+      } else {
+        subcatList.forEach(sc => {
+          const scRem = sc.mo - sc.actual;
+          const pctShare = totMo > 0 ? ((sc.mo / totMo) * 100).toFixed(1) + '%' : '0.0%';
+          const leadIcon = sc.icons.length > 0 ? sc.icons[0] : '📂';
+
+          subcatTbody.innerHTML += `
+            <tr class="group hover:bg-indigo-50/40 transition bg-white">
+              <td class="sticky left-0 z-10 bg-white group-hover:bg-indigo-50/90 py-2.5 px-3 font-bold text-slate-900 sticky-col-shadow">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-sm shrink-0">${leadIcon}</span>
+                  <div>
+                    <div class="text-slate-900 font-bold text-xs sm:text-sm">${sc.name}</div>
+                    <div class="text-[10px] font-semibold text-slate-500">${sc.count} ${sc.count === 1 ? 'category' : 'categories'}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="py-2.5 px-2.5 text-right font-semibold text-slate-600 whitespace-nowrap">${pctShare}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold text-slate-900 whitespace-nowrap">${fmt(sc.mo)}</td>
+              <td class="py-2.5 px-2.5 text-right font-semibold text-blue-700 whitespace-nowrap">${fmt(sc.fn)}</td>
+              <td class="py-2.5 px-2.5 text-right font-semibold text-indigo-700 whitespace-nowrap">${fmt(sc.wk)}</td>
+              <td class="py-2.5 px-2.5 text-right font-semibold text-slate-700 whitespace-nowrap">${fmt(sc.actual)}</td>
+              <td class="py-2.5 px-3 text-right font-bold whitespace-nowrap ${scRem >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(scRem)}</td>
+            </tr>
+          `;
+        });
+      }
+
       const totRem = totMo - totAct;
       document.getElementById('hh-tot-mo').textContent = fmt(totMo);
       document.getElementById('hh-tot-fn').textContent = fmt(totFn);
       document.getElementById('hh-tot-wk').textContent = fmt(totWk);
       document.getElementById('hh-tot-act').textContent = fmt(totAct);
       document.getElementById('hh-tot-rem').textContent = fmt(totRem);
+
+      document.getElementById('hh-subcat-tot-mo').textContent = fmt(totMo);
+      document.getElementById('hh-subcat-tot-fn').textContent = fmt(totFn);
+      document.getElementById('hh-subcat-tot-wk').textContent = fmt(totWk);
+      document.getElementById('hh-subcat-tot-act').textContent = fmt(totAct);
+      document.getElementById('hh-subcat-tot-rem').textContent = fmt(totRem);
 
       document.getElementById('hh-kpi-monthly').textContent = fmt(totRem);
       document.getElementById('hh-kpi-fortnightly').textContent = fmt(totFn);
