@@ -29,15 +29,55 @@
       background-color: #e2e8f0;
       color: #0f172a;
     }
+
+    /* Smooth horizontal & touch scrolling for all tables */
+    .table-scroll-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      scrollbar-width: auto;
+      scrollbar-color: #94a3b8 #f1f5f9;
+    }
+    .table-scroll-container::-webkit-scrollbar {
+      height: 10px;
+      width: 10px;
+    }
+    .table-scroll-container::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    .table-scroll-container::-webkit-scrollbar-thumb {
+      background-color: #94a3b8;
+      border-radius: 8px;
+      border: 2px solid #f1f5f9;
+    }
+    .table-scroll-container::-webkit-scrollbar-thumb:hover {
+      background-color: #64748b;
+    }
+
+    /* Remove number input arrows so they don't take up space or trap scroll */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* Subtle right border shadow on sticky first column */
+    .sticky-col-shadow {
+      box-shadow: 3px 0 6px -2px rgba(15, 23, 42, 0.08);
+    }
   </style>
 </head>
-<body class="min-h-screen p-4 sm:p-6 lg:p-8">
+<body class="min-h-screen p-3 sm:p-6 lg:p-8">
 
   <div class="max-w-7xl mx-auto space-y-6">
 
     <!-- Top Visual Hero Banner & Global Month Selector -->
     <header class="relative rounded-3xl overflow-hidden border border-blue-200 bg-gradient-to-r from-blue-50 via-indigo-50/70 to-sky-50 shadow-sm">
-      <div class="relative z-10 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="relative z-10 p-5 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-4">
           <div class="w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-300 flex items-center justify-center text-blue-700 shrink-0 shadow-sm">
             <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -144,7 +184,7 @@
       <!-- Income Split & Reconciliation Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- All Incoming Money: Income Contributions & Fortnightly Split -->
-        <div class="bg-sky-50/60 border border-sky-200 rounded-2xl p-4 sm:p-5 overflow-x-auto shadow-sm">
+        <div class="bg-sky-50/60 border border-sky-200 rounded-2xl p-4 sm:p-5 shadow-sm">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2.5">
               <span class="w-8 h-8 rounded-lg bg-white border border-sky-200 flex items-center justify-center text-sm shadow-sm">⚖️</span>
@@ -154,46 +194,48 @@
               </div>
             </div>
           </div>
-          <table class="w-full text-xs sm:text-sm text-left bg-white rounded-xl overflow-hidden border border-sky-200">
-            <thead class="text-slate-700 border-b border-sky-200 uppercase text-[11px] bg-sky-100/70">
-              <tr>
-                <th class="py-2.5 px-3 font-bold">Contributor</th>
-                <th class="py-2.5 px-3 text-right font-bold">Fortnightly Income</th>
-                <th class="py-2.5 px-3 text-right font-bold">% Split</th>
-                <th class="py-2.5 px-3 text-right font-bold">Share of Joint Req</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 bg-white">
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">
-                  <div>Liam</div>
-                  <span class="text-[10px] text-slate-500 font-medium">Variable Income (Editable)</span>
-                </td>
-                <td class="py-2.5 px-3 text-right">
-                  <input id="liam-baseline" type="number" step="0.01" value="3400.00" onchange="updateContributors(); saveData();" class="w-28 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
-                </td>
-                <td id="liam-split-pct" class="py-2.5 px-3 text-right font-semibold text-slate-700">68.2%</td>
-                <td id="liam-dynamic-req" class="py-2.5 px-3 text-right font-bold text-blue-700">$2,248.03</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">
-                  <div>Amy</div>
-                  <span class="text-[10px] text-slate-500 font-medium">Fixed at $1,585.00 (Editable)</span>
-                </td>
-                <td class="py-2.5 px-3 text-right">
-                  <input id="amy-baseline" type="number" step="0.01" value="1585.00" onchange="updateContributors(); saveData();" class="w-28 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
-                </td>
-                <td id="amy-split-pct" class="py-2.5 px-3 text-right font-semibold text-slate-700">31.8%</td>
-                <td id="amy-dynamic-req" class="py-2.5 px-3 text-right font-bold text-blue-700">$1,047.82</td>
-              </tr>
-              <tr class="font-bold bg-sky-50/90 border-t-2 border-sky-200">
-                <td class="py-2.5 px-3 text-slate-900">Total Fortnightly Income Pool</td>
-                <td id="pool-baseline-total" class="py-2.5 px-3 text-right text-emerald-700">$4,985.00</td>
-                <td class="py-2.5 px-3 text-right text-slate-800">100.0%</td>
-                <td id="pool-dynamic-total" class="py-2.5 px-3 text-right text-blue-700">$3,295.85</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-scroll-container rounded-xl border border-sky-200 bg-white">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="text-slate-700 border-b border-sky-200 uppercase text-[11px] bg-sky-100/70">
+                <tr>
+                  <th class="py-2.5 px-3 font-bold">Contributor</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Fortnightly Income</th>
+                  <th class="py-2.5 px-3 text-right font-bold">% Split</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Share of Joint Req</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">
+                    <div>Liam</div>
+                    <span class="text-[10px] text-slate-500 font-medium">Variable Income (Editable)</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-right">
+                    <input id="liam-baseline" type="number" step="0.01" value="3400.00" onwheel="this.blur()" onchange="updateContributors(); saveData();" class="w-24 sm:w-28 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+                  </td>
+                  <td id="liam-split-pct" class="py-2.5 px-3 text-right font-semibold text-slate-700">68.2%</td>
+                  <td id="liam-dynamic-req" class="py-2.5 px-3 text-right font-bold text-blue-700">$2,248.03</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">
+                    <div>Amy</div>
+                    <span class="text-[10px] text-slate-500 font-medium">Fixed at $1,585.00 (Editable)</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-right">
+                    <input id="amy-baseline" type="number" step="0.01" value="1585.00" onwheel="this.blur()" onchange="updateContributors(); saveData();" class="w-24 sm:w-28 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+                  </td>
+                  <td id="amy-split-pct" class="py-2.5 px-3 text-right font-semibold text-slate-700">31.8%</td>
+                  <td id="amy-dynamic-req" class="py-2.5 px-3 text-right font-bold text-blue-700">$1,047.82</td>
+                </tr>
+                <tr class="font-bold bg-sky-50/90 border-t-2 border-sky-200">
+                  <td class="py-2.5 px-3 text-slate-900">Total Fortnightly Income Pool</td>
+                  <td id="pool-baseline-total" class="py-2.5 px-3 text-right text-emerald-700">$4,985.00</td>
+                  <td class="py-2.5 px-3 text-right text-slate-800">100.0%</td>
+                  <td id="pool-dynamic-total" class="py-2.5 px-3 text-right text-blue-700">$3,295.85</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Budget Reconciliation & Buffer -->
@@ -231,45 +273,51 @@
       </div>
 
       <!-- Joint / Household Category Table -->
-      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 overflow-x-auto space-y-4 shadow-sm">
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="flex items-center gap-2.5">
             <span class="w-8 h-8 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center text-sm">🏡</span>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">Joint Household Budget Categories</h2>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Joint Household Budget Categories</h2>
+              <p class="text-[11px] text-slate-600 font-medium">✏️ Click any name, sub-category, icon, or amount to edit directly</p>
+            </div>
           </div>
-          <span class="text-xs text-slate-600 font-medium">✏️ Click any name, sub-category, icon, or amount to edit directly</span>
+          <div class="flex items-center gap-1.5 self-end sm:self-auto">
+            <button type="button" onclick="scrollTable('hh-table-scroll', -260)" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-2xs">◀ Scroll</button>
+            <button type="button" onclick="scrollTable('hh-table-scroll', 260)" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-2xs">Scroll ▶</button>
+          </div>
         </div>
 
         <!-- Add Category Form -->
         <div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-wrap gap-2 items-center shadow-sm">
           <input id="hh-new-name" type="text" placeholder="Category Name (e.g. Netflix)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 flex-1 min-w-[150px]" />
-          <input id="hh-new-group" type="text" placeholder="Sub-Category / Group (e.g. Subscriptions)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 w-52" />
-          <input id="hh-new-amt" type="number" step="0.01" placeholder="Monthly ($)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 w-32" />
+          <input id="hh-new-group" type="text" placeholder="Sub-Category / Group (e.g. Subscriptions)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 w-48 sm:w-52" />
+          <input id="hh-new-amt" type="number" step="0.01" onwheel="this.blur()" placeholder="Monthly ($)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 w-28 sm:w-32" />
           <button onclick="addCategory('hh')" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs whitespace-nowrap shadow-sm">+ Add Category</button>
         </div>
 
-        <div class="rounded-xl overflow-hidden border border-slate-200 bg-white">
-          <table class="w-full text-xs sm:text-sm text-left">
+        <div id="hh-table-scroll" class="table-scroll-container rounded-xl border border-slate-200 bg-white">
+          <table class="w-full text-xs sm:text-sm text-left border-collapse">
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
-                <th class="py-3 px-3 font-bold min-w-[240px]">Category &amp; Sub-Category</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Monthly Budget</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Fortnightly</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Weekly</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[110px]">Actual Spend</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Surplus / Remaining</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[120px]">Actions</th>
+                <th class="sticky left-0 z-20 bg-slate-100 py-3 px-3 font-bold min-w-[190px] sm:min-w-[230px] sticky-col-shadow">Category &amp; Sub-Category</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Monthly Budget</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Fortnightly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Weekly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[100px]">Actual Spend</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[115px]">Surplus / Rem</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[115px]">Actions</th>
               </tr>
             </thead>
             <tbody id="hh-category-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
             <tfoot class="border-t-2 border-slate-300 font-bold bg-slate-100 text-slate-900">
               <tr>
-                <td class="py-3 px-3">Total Joint Budget</td>
-                <td id="hh-tot-mo" class="py-3 px-3 text-right">$0.00</td>
-                <td id="hh-tot-fn" class="py-3 px-3 text-right text-blue-700">$0.00</td>
-                <td id="hh-tot-wk" class="py-3 px-3 text-right text-indigo-700">$0.00</td>
-                <td id="hh-tot-act" class="py-3 px-3 text-right">$0.00</td>
-                <td id="hh-tot-rem" class="py-3 px-3 text-right text-emerald-700">$0.00</td>
+                <td class="sticky left-0 z-20 bg-slate-100 py-3 px-3 sticky-col-shadow">Total Joint Budget</td>
+                <td id="hh-tot-mo" class="py-3 px-2.5 text-right">$0.00</td>
+                <td id="hh-tot-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
+                <td id="hh-tot-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
+                <td id="hh-tot-act" class="py-3 px-2.5 text-right">$0.00</td>
+                <td id="hh-tot-rem" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -341,13 +389,19 @@
       </div>
 
       <!-- Liam's Budget Category Table -->
-      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 overflow-x-auto space-y-4 shadow-sm">
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="flex items-center gap-2.5">
             <span class="w-8 h-8 rounded-lg bg-blue-100 border border-blue-200 flex items-center justify-center text-sm">📋</span>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">Liam's Budget Breakdown</h2>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Liam's Budget Breakdown</h2>
+              <p class="text-[11px] text-slate-600 font-medium">✏️ Click any name, sub-category, icon, or amount to edit directly</p>
+            </div>
           </div>
-          <span class="text-xs text-slate-600 font-medium">✏️ Click any name, sub-category, icon, or amount to edit directly</span>
+          <div class="flex items-center gap-1.5 self-end sm:self-auto">
+            <button type="button" onclick="scrollTable('liam-table-scroll', -260)" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-2xs">◀ Scroll</button>
+            <button type="button" onclick="scrollTable('liam-table-scroll', 260)" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-2xs">Scroll ▶</button>
+          </div>
         </div>
 
         <!-- Add Liam Category Form -->
@@ -357,32 +411,32 @@
             <option value="Spending">Spending Sub-Cat</option>
             <option value="Bills">Bills Sub-Cat</option>
           </select>
-          <input id="liam-new-amt" type="number" step="0.01" placeholder="Monthly ($)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 w-32" />
+          <input id="liam-new-amt" type="number" step="0.01" onwheel="this.blur()" placeholder="Monthly ($)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 w-28 sm:w-32" />
           <button onclick="addCategory('liam')" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs whitespace-nowrap shadow-sm">+ Add Category</button>
         </div>
 
-        <div class="rounded-xl overflow-hidden border border-slate-200 bg-white">
-          <table class="w-full text-xs sm:text-sm text-left">
+        <div id="liam-table-scroll" class="table-scroll-container rounded-xl border border-slate-200 bg-white">
+          <table class="w-full text-xs sm:text-sm text-left border-collapse">
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
-                <th class="py-3 px-3 font-bold min-w-[240px]">Category &amp; Sub-Category</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Monthly Budget</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Fortnightly</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Weekly</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[110px]">Actual Spend</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Remaining (FN)</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[120px]">Actions</th>
+                <th class="sticky left-0 z-20 bg-slate-100 py-3 px-3 font-bold min-w-[190px] sm:min-w-[230px] sticky-col-shadow">Category &amp; Sub-Category</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Monthly Budget</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Fortnightly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Weekly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[100px]">Actual Spend</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[115px]">Remaining (FN)</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[115px]">Actions</th>
               </tr>
             </thead>
             <tbody id="liam-category-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
             <tfoot class="border-t-2 border-slate-300 font-bold bg-slate-100 text-slate-900">
               <tr>
-                <td class="py-3 px-3">Total Liam's Budget</td>
-                <td id="liam-tot-mo" class="py-3 px-3 text-right">$0.00</td>
-                <td id="liam-tot-fn" class="py-3 px-3 text-right text-blue-700">$0.00</td>
-                <td id="liam-tot-wk" class="py-3 px-3 text-right text-indigo-700">$0.00</td>
-                <td id="liam-tot-act" class="py-3 px-3 text-right">$0.00</td>
-                <td id="liam-tot-rem" class="py-3 px-3 text-right text-emerald-700">$0.00</td>
+                <td class="sticky left-0 z-20 bg-slate-100 py-3 px-3 sticky-col-shadow">Total Liam's Budget</td>
+                <td id="liam-tot-mo" class="py-3 px-2.5 text-right">$0.00</td>
+                <td id="liam-tot-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
+                <td id="liam-tot-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
+                <td id="liam-tot-act" class="py-3 px-2.5 text-right">$0.00</td>
+                <td id="liam-tot-rem" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -392,96 +446,100 @@
 
       <!-- Liam's Account Distribution Split & Multi-Frequency Overview -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-purple-50/50 border border-purple-200 rounded-2xl p-4 sm:p-5 overflow-x-auto shadow-sm">
+        <div class="bg-purple-50/50 border border-purple-200 rounded-2xl p-4 sm:p-5 shadow-sm">
           <h2 class="text-base font-bold text-slate-900 mb-3">Liam's Account Distribution Split</h2>
-          <table class="w-full text-xs sm:text-sm text-left bg-white rounded-xl overflow-hidden border border-purple-200">
-            <thead class="text-slate-700 border-b border-purple-200 uppercase text-[11px] bg-purple-100/60">
-              <tr>
-                <th class="py-2.5 px-3 font-bold">Account</th>
-                <th class="py-2.5 px-3 text-right font-bold">Monthly</th>
-                <th class="py-2.5 px-3 text-right font-bold">Fortnightly</th>
-                <th class="py-2.5 px-3 text-right font-bold">Weekly</th>
-                <th class="py-2.5 px-3 text-right font-bold">Actual</th>
-                <th class="py-2.5 px-3 text-right font-bold">Remaining (FN)</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 bg-white">
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">
-                  <div class="flex items-center gap-2">
-                    <span class="w-7 h-7 rounded-lg bg-purple-100 border border-purple-200 text-purple-700 flex items-center justify-center">💳</span>
-                    <span>Spending Account</span>
-                  </div>
-                </td>
-                <td id="liam-acc-spend-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-acc-spend-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-acc-spend-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-acc-spend-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-acc-spend-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">
-                  <div class="flex items-center gap-2">
-                    <span class="w-7 h-7 rounded-lg bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center">🧾</span>
-                    <span>Bills Account</span>
-                  </div>
-                </td>
-                <td id="liam-acc-bills-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-acc-bills-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-acc-bills-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-acc-bills-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-acc-bills-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr class="font-bold bg-purple-50/80 text-slate-900 border-t-2 border-purple-200">
-                <td class="py-2.5 px-3">Total Liam's Accounts</td>
-                <td id="liam-acc-tot-mo" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="liam-acc-tot-fn" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="liam-acc-tot-wk" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="liam-acc-tot-act" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="liam-acc-tot-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-scroll-container rounded-xl border border-purple-200 bg-white">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="text-slate-700 border-b border-purple-200 uppercase text-[11px] bg-purple-100/60">
+                <tr>
+                  <th class="py-2.5 px-3 font-bold">Account</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Monthly</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Fortnightly</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Weekly</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Actual</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Remaining (FN)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">
+                    <div class="flex items-center gap-2">
+                      <span class="w-7 h-7 rounded-lg bg-purple-100 border border-purple-200 text-purple-700 flex items-center justify-center">💳</span>
+                      <span>Spending Account</span>
+                    </div>
+                  </td>
+                  <td id="liam-acc-spend-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-acc-spend-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-acc-spend-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-acc-spend-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-acc-spend-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">
+                    <div class="flex items-center gap-2">
+                      <span class="w-7 h-7 rounded-lg bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center">🧾</span>
+                      <span>Bills Account</span>
+                    </div>
+                  </td>
+                  <td id="liam-acc-bills-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-acc-bills-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-acc-bills-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-acc-bills-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-acc-bills-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr class="font-bold bg-purple-50/80 text-slate-900 border-t-2 border-purple-200">
+                  <td class="py-2.5 px-3">Total Liam's Accounts</td>
+                  <td id="liam-acc-tot-mo" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="liam-acc-tot-fn" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="liam-acc-tot-wk" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="liam-acc-tot-act" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="liam-acc-tot-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-4 sm:p-5 overflow-x-auto shadow-sm">
+        <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-sm">
           <h2 class="text-base font-bold text-slate-900 mb-3">Liam's Multi-Frequency Expense Overview</h2>
-          <table class="w-full text-xs sm:text-sm text-left bg-white rounded-xl overflow-hidden border border-blue-200">
-            <thead class="text-slate-700 border-b border-blue-200 uppercase text-[11px] bg-blue-100/60">
-              <tr>
-                <th class="py-2.5 px-3 font-bold">Frequency</th>
-                <th class="py-2.5 px-3 text-right font-bold">Budgeted Expenses</th>
-                <th class="py-2.5 px-3 text-right font-bold">Logged Spend</th>
-                <th class="py-2.5 px-3 text-right font-bold">Remaining</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 bg-white">
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">⏱️ Weekly</td>
-                <td id="liam-freq-wk-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-freq-wk-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-freq-wk-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">📅 Fortnightly</td>
-                <td id="liam-freq-fn-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-freq-fn-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-freq-fn-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">🗓️ Monthly</td>
-                <td id="liam-freq-mo-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-freq-mo-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="liam-freq-mo-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr class="font-bold bg-blue-50/80 text-slate-900 border-t-2 border-blue-200">
-                <td class="py-2.5 px-3">🎯 Annual (26 Fortnights)</td>
-                <td id="liam-freq-yr-exp" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="liam-freq-yr-act" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="liam-freq-yr-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-scroll-container rounded-xl border border-blue-200 bg-white">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="text-slate-700 border-b border-blue-200 uppercase text-[11px] bg-blue-100/60">
+                <tr>
+                  <th class="py-2.5 px-3 font-bold">Frequency</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Budgeted Expenses</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Logged Spend</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Remaining</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">⏱️ Weekly</td>
+                  <td id="liam-freq-wk-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-freq-wk-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-freq-wk-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">📅 Fortnightly</td>
+                  <td id="liam-freq-fn-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-freq-fn-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-freq-fn-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">🗓️ Monthly</td>
+                  <td id="liam-freq-mo-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-freq-mo-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="liam-freq-mo-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr class="font-bold bg-blue-50/80 text-slate-900 border-t-2 border-blue-200">
+                  <td class="py-2.5 px-3">🎯 Annual (26 Fortnights)</td>
+                  <td id="liam-freq-yr-exp" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="liam-freq-yr-act" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="liam-freq-yr-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -549,13 +607,19 @@
       </div>
 
       <!-- Amy's Budget Category Table -->
-      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 overflow-x-auto space-y-4 shadow-sm">
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="flex items-center gap-2.5">
             <span class="w-8 h-8 rounded-lg bg-pink-100 border border-pink-200 flex items-center justify-center text-sm">🌸</span>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">Amy's Budget Breakdown</h2>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Amy's Budget Breakdown</h2>
+              <p class="text-[11px] text-slate-600 font-medium">✏️ Click any name, sub-category, icon, or amount to edit directly</p>
+            </div>
           </div>
-          <span class="text-xs text-slate-600 font-medium">✏️ Click any name, sub-category, icon, or amount to edit directly</span>
+          <div class="flex items-center gap-1.5 self-end sm:self-auto">
+            <button type="button" onclick="scrollTable('amy-table-scroll', -260)" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-2xs">◀ Scroll</button>
+            <button type="button" onclick="scrollTable('amy-table-scroll', 260)" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-2xs">Scroll ▶</button>
+          </div>
         </div>
 
         <!-- Add Amy Category Form -->
@@ -565,32 +629,32 @@
             <option value="Spending">Spending Sub-Cat</option>
             <option value="Bills">Bills Sub-Cat</option>
           </select>
-          <input id="amy-new-amt" type="number" step="0.01" placeholder="Monthly ($)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 w-32" />
+          <input id="amy-new-amt" type="number" step="0.01" onwheel="this.blur()" placeholder="Monthly ($)" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-900 placeholder-slate-400 w-28 sm:w-32" />
           <button onclick="addCategory('amy')" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs whitespace-nowrap shadow-sm">+ Add Category</button>
         </div>
 
-        <div class="rounded-xl overflow-hidden border border-slate-200 bg-white">
-          <table class="w-full text-xs sm:text-sm text-left">
+        <div id="amy-table-scroll" class="table-scroll-container rounded-xl border border-slate-200 bg-white">
+          <table class="w-full text-xs sm:text-sm text-left border-collapse">
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
-                <th class="py-3 px-3 font-bold min-w-[240px]">Category &amp; Sub-Category</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Monthly Budget</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Fortnightly</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Weekly</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[110px]">Actual Spend</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[130px]">Remaining (FN)</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[120px]">Actions</th>
+                <th class="sticky left-0 z-20 bg-slate-100 py-3 px-3 font-bold min-w-[190px] sm:min-w-[230px] sticky-col-shadow">Category &amp; Sub-Category</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Monthly Budget</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Fortnightly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Weekly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[100px]">Actual Spend</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[115px]">Remaining (FN)</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[115px]">Actions</th>
               </tr>
             </thead>
             <tbody id="amy-category-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
             <tfoot class="border-t-2 border-slate-300 font-bold bg-slate-100 text-slate-900">
               <tr>
-                <td class="py-3 px-3">Total Amy's Budget</td>
-                <td id="amy-tot-mo" class="py-3 px-3 text-right">$0.00</td>
-                <td id="amy-tot-fn" class="py-3 px-3 text-right text-blue-700">$0.00</td>
-                <td id="amy-tot-wk" class="py-3 px-3 text-right text-indigo-700">$0.00</td>
-                <td id="amy-tot-act" class="py-3 px-3 text-right">$0.00</td>
-                <td id="amy-tot-rem" class="py-3 px-3 text-right text-emerald-700">$0.00</td>
+                <td class="sticky left-0 z-20 bg-slate-100 py-3 px-3 sticky-col-shadow">Total Amy's Budget</td>
+                <td id="amy-tot-mo" class="py-3 px-2.5 text-right">$0.00</td>
+                <td id="amy-tot-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
+                <td id="amy-tot-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
+                <td id="amy-tot-act" class="py-3 px-2.5 text-right">$0.00</td>
+                <td id="amy-tot-rem" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -600,96 +664,100 @@
 
       <!-- Amy's Account Distribution Split & Multi-Frequency Overview -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-pink-50/50 border border-pink-200 rounded-2xl p-4 sm:p-5 overflow-x-auto shadow-sm">
+        <div class="bg-pink-50/50 border border-pink-200 rounded-2xl p-4 sm:p-5 shadow-sm">
           <h2 class="text-base font-bold text-slate-900 mb-3">Amy's Account Distribution Split</h2>
-          <table class="w-full text-xs sm:text-sm text-left bg-white rounded-xl overflow-hidden border border-pink-200">
-            <thead class="text-slate-700 border-b border-pink-200 uppercase text-[11px] bg-pink-100/60">
-              <tr>
-                <th class="py-2.5 px-3 font-bold">Account</th>
-                <th class="py-2.5 px-3 text-right font-bold">Monthly</th>
-                <th class="py-2.5 px-3 text-right font-bold">Fortnightly</th>
-                <th class="py-2.5 px-3 text-right font-bold">Weekly</th>
-                <th class="py-2.5 px-3 text-right font-bold">Actual</th>
-                <th class="py-2.5 px-3 text-right font-bold">Remaining (FN)</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 bg-white">
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">
-                  <div class="flex items-center gap-2">
-                    <span class="w-7 h-7 rounded-lg bg-purple-100 border border-purple-200 text-purple-700 flex items-center justify-center">💳</span>
-                    <span>Spending Account</span>
-                  </div>
-                </td>
-                <td id="amy-acc-spend-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-acc-spend-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-acc-spend-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-acc-spend-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-acc-spend-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">
-                  <div class="flex items-center gap-2">
-                    <span class="w-7 h-7 rounded-lg bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center">🧾</span>
-                    <span>Bills Account</span>
-                  </div>
-                </td>
-                <td id="amy-acc-bills-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-acc-bills-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-acc-bills-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-acc-bills-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-acc-bills-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr class="font-bold bg-pink-50/80 text-slate-900 border-t-2 border-pink-200">
-                <td class="py-2.5 px-3">Total Amy's Accounts</td>
-                <td id="amy-acc-tot-mo" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="amy-acc-tot-fn" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="amy-acc-tot-wk" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="amy-acc-tot-act" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="amy-acc-tot-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-scroll-container rounded-xl border border-pink-200 bg-white">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="text-slate-700 border-b border-pink-200 uppercase text-[11px] bg-pink-100/60">
+                <tr>
+                  <th class="py-2.5 px-3 font-bold">Account</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Monthly</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Fortnightly</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Weekly</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Actual</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Remaining (FN)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">
+                    <div class="flex items-center gap-2">
+                      <span class="w-7 h-7 rounded-lg bg-purple-100 border border-purple-200 text-purple-700 flex items-center justify-center">💳</span>
+                      <span>Spending Account</span>
+                    </div>
+                  </td>
+                  <td id="amy-acc-spend-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-acc-spend-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-acc-spend-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-acc-spend-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-acc-spend-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">
+                    <div class="flex items-center gap-2">
+                      <span class="w-7 h-7 rounded-lg bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center">🧾</span>
+                      <span>Bills Account</span>
+                    </div>
+                  </td>
+                  <td id="amy-acc-bills-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-acc-bills-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-acc-bills-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-acc-bills-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-acc-bills-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr class="font-bold bg-pink-50/80 text-slate-900 border-t-2 border-pink-200">
+                  <td class="py-2.5 px-3">Total Amy's Accounts</td>
+                  <td id="amy-acc-tot-mo" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="amy-acc-tot-fn" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="amy-acc-tot-wk" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="amy-acc-tot-act" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="amy-acc-tot-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-4 sm:p-5 overflow-x-auto shadow-sm">
+        <div class="bg-blue-50/50 border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-sm">
           <h2 class="text-base font-bold text-slate-900 mb-3">Amy's Multi-Frequency Expense Overview</h2>
-          <table class="w-full text-xs sm:text-sm text-left bg-white rounded-xl overflow-hidden border border-blue-200">
-            <thead class="text-slate-700 border-b border-blue-200 uppercase text-[11px] bg-blue-100/60">
-              <tr>
-                <th class="py-2.5 px-3 font-bold">Frequency</th>
-                <th class="py-2.5 px-3 text-right font-bold">Budgeted Expenses</th>
-                <th class="py-2.5 px-3 text-right font-bold">Logged Spend</th>
-                <th class="py-2.5 px-3 text-right font-bold">Remaining</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 bg-white">
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">⏱️ Weekly</td>
-                <td id="amy-freq-wk-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-freq-wk-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-freq-wk-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">📅 Fortnightly</td>
-                <td id="amy-freq-fn-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-freq-fn-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-freq-fn-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 px-3 font-bold text-slate-900">🗓️ Monthly</td>
-                <td id="amy-freq-mo-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-freq-mo-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                <td id="amy-freq-mo-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
-              </tr>
-              <tr class="font-bold bg-blue-50/80 text-slate-900 border-t-2 border-blue-200">
-                <td class="py-2.5 px-3">🎯 Annual (26 Fortnights)</td>
-                <td id="amy-freq-yr-exp" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="amy-freq-yr-act" class="py-2.5 px-3 text-right">$0.00</td>
-                <td id="amy-freq-yr-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-scroll-container rounded-xl border border-blue-200 bg-white">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="text-slate-700 border-b border-blue-200 uppercase text-[11px] bg-blue-100/60">
+                <tr>
+                  <th class="py-2.5 px-3 font-bold">Frequency</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Budgeted Expenses</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Logged Spend</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Remaining</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">⏱️ Weekly</td>
+                  <td id="amy-freq-wk-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-freq-wk-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-freq-wk-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">📅 Fortnightly</td>
+                  <td id="amy-freq-fn-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-freq-fn-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-freq-fn-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-3 font-bold text-slate-900">🗓️ Monthly</td>
+                  <td id="amy-freq-mo-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-freq-mo-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
+                  <td id="amy-freq-mo-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                </tr>
+                <tr class="font-bold bg-blue-50/80 text-slate-900 border-t-2 border-blue-200">
+                  <td class="py-2.5 px-3">🎯 Annual (26 Fortnights)</td>
+                  <td id="amy-freq-yr-exp" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="amy-freq-yr-act" class="py-2.5 px-3 text-right">$0.00</td>
+                  <td id="amy-freq-yr-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -707,20 +775,20 @@
           <select id="hh-log-cat" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900"></select>
           <input id="hh-log-desc" type="text" placeholder="Description" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
           <div class="flex gap-2">
-            <input id="hh-log-amt" type="number" step="0.01" placeholder="Amount ($)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
+            <input id="hh-log-amt" type="number" step="0.01" onwheel="this.blur()" placeholder="Amount ($)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
             <button onclick="addExpense('hh')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm whitespace-nowrap shadow-sm">Add</button>
           </div>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <div class="table-scroll-container rounded-xl border border-slate-200 bg-white">
           <table class="w-full text-xs sm:text-sm text-left">
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
-                <th class="py-3 px-3 font-bold">Date</th>
-                <th class="py-3 px-3 font-bold">Category</th>
-                <th class="py-3 px-3 font-bold">Description</th>
-                <th class="py-3 px-3 text-right font-bold">Amount</th>
-                <th class="py-3 px-3 text-right font-bold">Action</th>
+                <th class="py-3 px-3 font-bold min-w-[105px]">Date</th>
+                <th class="py-3 px-3 font-bold min-w-[150px]">Category</th>
+                <th class="py-3 px-3 font-bold min-w-[160px]">Description</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[100px]">Amount</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[90px]">Action</th>
               </tr>
             </thead>
             <tbody id="hh-log-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -749,20 +817,20 @@
           <select id="liam-log-cat" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900"></select>
           <input id="liam-log-desc" type="text" placeholder="Description" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
           <div class="flex gap-2">
-            <input id="liam-log-amt" type="number" step="0.01" placeholder="Amount ($)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
+            <input id="liam-log-amt" type="number" step="0.01" onwheel="this.blur()" placeholder="Amount ($)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
             <button onclick="addExpense('liam')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm whitespace-nowrap shadow-sm">Add</button>
           </div>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <div class="table-scroll-container rounded-xl border border-slate-200 bg-white">
           <table class="w-full text-xs sm:text-sm text-left">
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
-                <th class="py-3 px-3 font-bold">Date</th>
-                <th class="py-3 px-3 font-bold">Category</th>
-                <th class="py-3 px-3 font-bold">Description</th>
-                <th class="py-3 px-3 text-right font-bold">Amount</th>
-                <th class="py-3 px-3 text-right font-bold">Action</th>
+                <th class="py-3 px-3 font-bold min-w-[105px]">Date</th>
+                <th class="py-3 px-3 font-bold min-w-[150px]">Category</th>
+                <th class="py-3 px-3 font-bold min-w-[160px]">Description</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[100px]">Amount</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[90px]">Action</th>
               </tr>
             </thead>
             <tbody id="liam-log-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -791,20 +859,20 @@
           <select id="amy-log-cat" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900"></select>
           <input id="amy-log-desc" type="text" placeholder="Description" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
           <div class="flex gap-2">
-            <input id="amy-log-amt" type="number" step="0.01" placeholder="Amount ($)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
+            <input id="amy-log-amt" type="number" step="0.01" onwheel="this.blur()" placeholder="Amount ($)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-medium text-slate-900 placeholder-slate-400" />
             <button onclick="addExpense('amy')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm whitespace-nowrap shadow-sm">Add</button>
           </div>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <div class="table-scroll-container rounded-xl border border-slate-200 bg-white">
           <table class="w-full text-xs sm:text-sm text-left">
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
-                <th class="py-3 px-3 font-bold">Date</th>
-                <th class="py-3 px-3 font-bold">Category</th>
-                <th class="py-3 px-3 font-bold">Description</th>
-                <th class="py-3 px-3 text-right font-bold">Amount</th>
-                <th class="py-3 px-3 text-right font-bold">Action</th>
+                <th class="py-3 px-3 font-bold min-w-[105px]">Date</th>
+                <th class="py-3 px-3 font-bold min-w-[150px]">Category</th>
+                <th class="py-3 px-3 font-bold min-w-[160px]">Description</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[100px]">Amount</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[90px]">Action</th>
               </tr>
             </thead>
             <tbody id="amy-log-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -857,7 +925,7 @@
 
         <div>
           <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Monthly Budget ($)</label>
-          <input id="modal-cat-monthly" type="number" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+          <input id="modal-cat-monthly" type="number" step="0.01" onwheel="this.blur()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
         </div>
       </div>
 
@@ -953,6 +1021,14 @@
     document.getElementById('hh-log-date').value = currentMonth + '-01';
     document.getElementById('liam-log-date').value = currentMonth + '-01';
     document.getElementById('amy-log-date').value = currentMonth + '-01';
+
+    // Helper: Smoothly scrolls a table container horizontally
+    function scrollTable(containerId, offset) {
+      const el = document.getElementById(containerId);
+      if (el) {
+        el.scrollBy({ left: offset, behavior: 'smooth' });
+      }
+    }
 
     // Helper: Safely converts Firebase objects/sparse arrays back into standard JS Arrays
     function toArray(val, fallback) {
@@ -1114,31 +1190,31 @@
           totAct += actual;
 
           tbody.innerHTML += `
-            <tr class="hover:bg-blue-50/40 transition bg-white">
-              <td class="py-3 px-3 font-medium text-slate-900">
-                <div class="flex items-center gap-2.5">
-                  <input type="text" value="${escAttr(cat.icon || '📌')}" onchange="updateCatIcon('hh', ${idx}, this.value)" title="Click to edit icon" class="w-10 h-10 text-center bg-slate-50 border border-slate-300 rounded-lg text-base shrink-0 focus:outline-none focus:border-blue-600" />
-                  <div class="flex flex-col gap-1 w-full">
-                    <input type="text" value="${escAttr(cat.name)}" onchange="updateCatName('hh', ${idx}, this.value)" title="Click to edit category name" class="bg-transparent hover:bg-slate-100 focus:bg-white border border-transparent hover:border-slate-300 focus:border-blue-600 rounded px-1.5 py-0.5 text-slate-900 font-bold text-xs sm:text-sm focus:outline-none w-full" />
-                    <input type="text" value="${escAttr(cat.group || 'General')}" onchange="updateCatGroup('hh', ${idx}, this.value)" title="Click to edit sub-category / group" class="bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-slate-200 focus:border-blue-600 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-600 focus:outline-none w-36" />
+            <tr class="group hover:bg-blue-50/40 transition bg-white">
+              <td class="sticky left-0 z-10 bg-white group-hover:bg-blue-50/90 py-2.5 px-3 font-medium text-slate-900 sticky-col-shadow">
+                <div class="flex items-center gap-2">
+                  <input type="text" value="${escAttr(cat.icon || '📌')}" onchange="updateCatIcon('hh', ${idx}, this.value)" title="Click to edit icon" class="w-9 h-9 text-center bg-slate-50 border border-slate-300 rounded-lg text-sm shrink-0 focus:outline-none focus:border-blue-600" />
+                  <div class="flex flex-col gap-1 min-w-0 flex-1">
+                    <input type="text" value="${escAttr(cat.name)}" onchange="updateCatName('hh', ${idx}, this.value)" title="Click to edit category name" class="bg-transparent hover:bg-slate-100 focus:bg-white border border-transparent hover:border-slate-300 focus:border-blue-600 rounded px-1.5 py-0.5 text-slate-900 font-bold text-xs sm:text-sm focus:outline-none w-full truncate" />
+                    <input type="text" value="${escAttr(cat.group || 'General')}" onchange="updateCatGroup('hh', ${idx}, this.value)" title="Click to edit sub-category / group" class="bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-slate-200 focus:border-blue-600 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-600 focus:outline-none w-28 sm:w-36" />
                   </div>
                 </div>
               </td>
-              <td class="py-3 px-3 text-right">
-                <input type="number" step="0.01" value="${mo.toFixed(2)}" onchange="updateCatAmount('hh', ${idx}, 'mo', this.value)"
-                  class="w-28 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+              <td class="py-2.5 px-2.5 text-right">
+                <input type="number" step="0.01" value="${mo.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('hh', ${idx}, 'mo', this.value)"
+                  class="w-24 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
               </td>
-              <td class="py-3 px-3 text-right">
-                <input type="number" step="0.01" value="${fn.toFixed(2)}" onchange="updateCatAmount('hh', ${idx}, 'fn', this.value)"
-                  class="w-28 bg-blue-50/60 border border-blue-200 rounded-lg px-2 py-1 text-right font-semibold text-blue-800 focus:outline-none focus:border-blue-600" />
+              <td class="py-2.5 px-2.5 text-right">
+                <input type="number" step="0.01" value="${fn.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('hh', ${idx}, 'fn', this.value)"
+                  class="w-24 bg-blue-50/60 border border-blue-200 rounded-lg px-2 py-1 text-right font-semibold text-blue-800 focus:outline-none focus:border-blue-600" />
               </td>
-              <td class="py-3 px-3 text-right">
-                <input type="number" step="0.01" value="${wk.toFixed(2)}" onchange="updateCatAmount('hh', ${idx}, 'wk', this.value)"
-                  class="w-28 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 text-right font-semibold text-indigo-800 focus:outline-none focus:border-blue-600" />
+              <td class="py-2.5 px-2.5 text-right">
+                <input type="number" step="0.01" value="${wk.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('hh', ${idx}, 'wk', this.value)"
+                  class="w-24 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 text-right font-semibold text-indigo-800 focus:outline-none focus:border-blue-600" />
               </td>
-              <td class="py-3 px-3 text-right font-semibold text-slate-700">${fmt(actual)}</td>
-              <td class="py-3 px-3 text-right font-bold ${rem >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(rem)}</td>
-              <td class="py-3 px-3 text-right space-x-1 whitespace-nowrap">
+              <td class="py-2.5 px-2.5 text-right font-semibold text-slate-700 whitespace-nowrap">${fmt(actual)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${rem >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(rem)}</td>
+              <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
                 <button type="button" onclick="openEditModal('hh', ${idx})" class="text-blue-700 hover:bg-blue-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-200">Edit</button>
                 <button type="button" onclick="deleteCategory('hh', ${idx})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200">Delete</button>
               </td>
@@ -1240,12 +1316,12 @@
           }
 
           tbody.innerHTML += `
-            <tr class="hover:bg-blue-50/40 transition bg-white">
-              <td class="py-3 px-3 font-medium text-slate-900">
-                <div class="flex items-center gap-2.5">
-                  <input type="text" value="${escAttr(cat.icon || '📌')}" onchange="updateCatIcon('${person}', ${idx}, this.value)" title="Click to edit icon" class="w-10 h-10 text-center bg-slate-50 border border-slate-300 rounded-lg text-base shrink-0 focus:outline-none focus:border-blue-600" />
-                  <div class="flex flex-col gap-1 w-full">
-                    <input type="text" value="${escAttr(cat.name)}" onchange="updateCatName('${person}', ${idx}, this.value)" title="Click to edit category name" class="bg-transparent hover:bg-slate-100 focus:bg-white border border-transparent hover:border-slate-300 focus:border-blue-600 rounded px-1.5 py-0.5 text-slate-900 font-bold text-xs sm:text-sm focus:outline-none w-full" />
+            <tr class="group hover:bg-blue-50/40 transition bg-white">
+              <td class="sticky left-0 z-10 bg-white group-hover:bg-blue-50/90 py-2.5 px-3 font-medium text-slate-900 sticky-col-shadow">
+                <div class="flex items-center gap-2">
+                  <input type="text" value="${escAttr(cat.icon || '📌')}" onchange="updateCatIcon('${person}', ${idx}, this.value)" title="Click to edit icon" class="w-9 h-9 text-center bg-slate-50 border border-slate-300 rounded-lg text-sm shrink-0 focus:outline-none focus:border-blue-600" />
+                  <div class="flex flex-col gap-1 min-w-0 flex-1">
+                    <input type="text" value="${escAttr(cat.name)}" onchange="updateCatName('${person}', ${idx}, this.value)" title="Click to edit category name" class="bg-transparent hover:bg-slate-100 focus:bg-white border border-transparent hover:border-slate-300 focus:border-blue-600 rounded px-1.5 py-0.5 text-slate-900 font-bold text-xs sm:text-sm focus:outline-none w-full truncate" />
                     <select onchange="updateCatGroup('${person}', ${idx}, this.value)" title="Click to switch sub-category account" class="bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-slate-200 focus:border-blue-600 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-700 focus:outline-none w-28">
                       <option value="Spending" ${accType === 'Spending' ? 'selected' : ''}>Spending</option>
                       <option value="Bills" ${accType === 'Bills' ? 'selected' : ''}>Bills</option>
@@ -1253,21 +1329,21 @@
                   </div>
                 </div>
               </td>
-              <td class="py-3 px-3 text-right">
-                <input type="number" step="0.01" value="${mo.toFixed(2)}" onchange="updateCatAmount('${person}', ${idx}, 'mo', this.value)"
-                  class="w-28 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+              <td class="py-2.5 px-2.5 text-right">
+                <input type="number" step="0.01" value="${mo.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('${person}', ${idx}, 'mo', this.value)"
+                  class="w-24 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
               </td>
-              <td class="py-3 px-3 text-right">
-                <input type="number" step="0.01" value="${fn.toFixed(2)}" onchange="updateCatAmount('${person}', ${idx}, 'fn', this.value)"
-                  class="w-28 bg-blue-50/60 border border-blue-200 rounded-lg px-2 py-1 text-right font-semibold text-blue-800 focus:outline-none focus:border-blue-600" />
+              <td class="py-2.5 px-2.5 text-right">
+                <input type="number" step="0.01" value="${fn.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('${person}', ${idx}, 'fn', this.value)"
+                  class="w-24 bg-blue-50/60 border border-blue-200 rounded-lg px-2 py-1 text-right font-semibold text-blue-800 focus:outline-none focus:border-blue-600" />
               </td>
-              <td class="py-3 px-3 text-right">
-                <input type="number" step="0.01" value="${wk.toFixed(2)}" onchange="updateCatAmount('${person}', ${idx}, 'wk', this.value)"
-                  class="w-28 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 text-right font-semibold text-indigo-800 focus:outline-none focus:border-blue-600" />
+              <td class="py-2.5 px-2.5 text-right">
+                <input type="number" step="0.01" value="${wk.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('${person}', ${idx}, 'wk', this.value)"
+                  class="w-24 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 text-right font-semibold text-indigo-800 focus:outline-none focus:border-blue-600" />
               </td>
-              <td class="py-3 px-3 text-right font-semibold text-slate-700">${fmt(actual)}</td>
-              <td class="py-3 px-3 text-right font-bold ${rem >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(rem)}</td>
-              <td class="py-3 px-3 text-right space-x-1 whitespace-nowrap">
+              <td class="py-2.5 px-2.5 text-right font-semibold text-slate-700 whitespace-nowrap">${fmt(actual)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${rem >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(rem)}</td>
+              <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
                 <button type="button" onclick="openEditModal('${person}', ${idx})" class="text-blue-700 hover:bg-blue-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-200">Edit</button>
                 <button type="button" onclick="deleteCategory('${person}', ${idx})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200">Delete</button>
               </td>
@@ -1347,7 +1423,6 @@
       const oldName = list[idx].name;
       list[idx].name = trimmed;
 
-      // Sync any logged expenses that used the previous category name
       const expList = getExpenseList(type);
       expList.forEach(e => {
         if (e.cat === oldName) e.cat = trimmed;
@@ -1487,7 +1562,6 @@
         cat.account = document.getElementById('modal-cat-account').value;
       }
 
-      // Update any logged expenses matching the old category name
       if (oldName !== newName) {
         const expList = getExpenseList(activeEditType);
         expList.forEach(e => {
@@ -1600,13 +1674,13 @@
       } else {
         tbody.innerHTML = list.map(item => `
           <tr class="hover:bg-slate-50 bg-white">
-            <td class="py-2.5 px-3 font-medium text-slate-700">${item.date}</td>
-            <td class="py-2.5 px-3 font-bold text-slate-900">
+            <td class="py-2.5 px-3 font-medium text-slate-700 whitespace-nowrap">${item.date}</td>
+            <td class="py-2.5 px-3 font-bold text-slate-900 whitespace-nowrap">
               <span class="mr-1.5">${getCategoryIcon(type, item.cat)}</span>${item.cat}
             </td>
             <td class="py-2.5 px-3 font-medium text-slate-700">${item.desc}</td>
-            <td class="py-2.5 px-3 text-right font-bold text-slate-900">${fmt(item.amt)}</td>
-            <td class="py-2.5 px-3 text-right">
+            <td class="py-2.5 px-3 text-right font-bold text-slate-900 whitespace-nowrap">${fmt(item.amt)}</td>
+            <td class="py-2.5 px-3 text-right whitespace-nowrap">
               <button type="button" onclick="deleteExpense('${type}', ${item.id})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2.5 py-1 rounded bg-rose-50 border border-rose-200">Remove</button>
             </td>
           </tr>
