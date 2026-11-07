@@ -125,8 +125,28 @@
       </div>
     </div>
 
+    <div id="undo-savings-banner" class="hidden bg-teal-50 border border-teal-300 text-teal-900 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm">
+      <div class="text-xs sm:text-sm font-semibold">
+        ↩️ Savings adjusted: <span id="undo-savings-name" class="font-extrabold underline"></span>.
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="undoSavingsTx()" class="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg shadow-sm">Undo</button>
+        <button onclick="dismissSavingsUndo()" class="px-2 py-1 text-teal-800 hover:bg-teal-100 text-xs font-bold rounded-lg">✕</button>
+      </div>
+    </div>
+
+    <div id="undo-etienne-banner" class="hidden bg-rose-50 border border-rose-300 text-rose-900 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm">
+      <div class="text-xs sm:text-sm font-semibold">
+        ↩️ Logged Etienne Repayment of <span id="undo-etienne-amt" class="font-extrabold underline"></span>.
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="undoEtienneTx()" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm">Undo Log</button>
+        <button onclick="dismissEtienneUndo()" class="px-2 py-1 text-rose-800 hover:bg-rose-100 text-xs font-bold rounded-lg">✕</button>
+      </div>
+    </div>
+
     <!-- Navigation Tabs (6 Tabs) -->
-    <nav class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+    <nav class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mt-4">
       <button id="tab-btn-household" onclick="switchTab('household')" class="tab-active py-3 px-3 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
         <span>🏠</span>
         <span>Joint Dashboard</span>
@@ -280,37 +300,26 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- Savings Account Tracker -->
-        <div class="bg-teal-50/50 border border-teal-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col">
+        <div class="bg-teal-50/50 border border-teal-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col overflow-hidden">
           <div class="flex items-center gap-2.5 mb-4">
              <span class="w-8 h-8 rounded-lg bg-white border border-teal-200 flex items-center justify-center text-sm shadow-sm">🏦</span>
              <div>
                <h2 class="text-base font-bold text-slate-900">Savings Account Tracker</h2>
-               <p class="text-[11px] text-slate-600 font-medium">Compare your current balance vs how much is budgeted for savings.</p>
+               <p class="text-[11px] text-slate-600 font-medium">Any category in the "Savings" sub-category syncs here.</p>
              </div>
           </div>
-          <div class="table-scroll-container rounded-xl border border-teal-200 bg-white flex-1">
-            <table class="w-full text-xs sm:text-sm text-left h-full">
-              <thead class="text-slate-700 border-b border-teal-200 uppercase text-[11px] bg-teal-100/60">
+          <div class="table-scroll-container rounded-xl border border-teal-200 bg-white flex-1 relative">
+            <table class="w-full text-xs sm:text-sm text-left">
+              <thead class="text-slate-700 border-b border-teal-200 uppercase text-[11px] bg-teal-100/60 sticky top-0 z-10">
                 <tr>
                   <th class="py-2.5 px-3 font-bold">Account</th>
                   <th class="py-2.5 px-3 text-right font-bold">Budgeted (Mo)</th>
                   <th class="py-2.5 px-3 text-right font-bold">Current Balance</th>
-                  <th class="py-2.5 px-3 text-center font-bold">Adjust Balance</th>
+                  <th class="py-2.5 px-3 text-right font-bold min-w-[210px]">Add / Take Out</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200">
-                <tr>
-                  <td class="py-3 px-3 font-bold text-slate-900">Main Savings</td>
-                  <td id="savings-budgeted-mo" class="py-3 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="savings-table-balance" class="py-3 px-3 text-right font-extrabold text-teal-700 text-lg">$0.00</td>
-                  <td class="py-3 px-3">
-                    <div class="flex items-center justify-end gap-1.5 min-w-[150px]">
-                      <input id="savings-table-input" type="number" step="0.01" class="w-24 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 text-right text-xs focus:outline-none focus:border-teal-600" placeholder="Amount" />
-                      <button onclick="updateSavingsTableTally('add')" class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs shadow-sm">+</button>
-                      <button onclick="updateSavingsTableTally('sub')" class="px-2.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-lg text-xs shadow-sm">-</button>
-                    </div>
-                  </td>
-                </tr>
+              <tbody id="savings-table-tbody" class="divide-y divide-slate-200">
+                <!-- Dynamically populated -->
               </tbody>
             </table>
           </div>
@@ -1076,16 +1085,20 @@
     let amyIncome = 1585.00;
     
     // Trackers
-    let savingsBalance = 0.00;
+    let savingsBalances = {};
     let etienneRepaid = 0.00;
 
     // Modal & Undo state
     let activeEditType = null;
     let activeEditIdx = null;
     let lastDeletedCategory = null;
+    
     let activeEditExpType = null;
     let activeEditExpId = null;
     let lastDeletedExpense = null;
+
+    let lastSavingsTx = null;
+    let lastEtienneTx = null;
 
     document.getElementById('global-month-selector').value = currentMonth;
     document.getElementById('hh-log-date').value = currentMonth + '-01';
@@ -1124,7 +1137,7 @@
         amy_expenses: amyExpenses,
         liam_income: document.getElementById('liam-baseline').value,
         amy_income: document.getElementById('amy-baseline').value,
-        savings_balance: savingsBalance,
+        savings_balances: savingsBalances,
         etienne_repaid: etienneRepaid,
         selected_month: currentMonth
       };
@@ -1161,8 +1174,14 @@
         amyIncome = parseFloat(val.amy_income) || 1585.00;
         document.getElementById('amy-baseline').value = amyIncome.toFixed(2);
 
-        if (val.savings_balance !== undefined) savingsBalance = parseFloat(val.savings_balance) || 0;
-        document.getElementById('savings-table-balance').textContent = fmt(savingsBalance);
+        // Migrate old singular savings_balance to new structure if needed
+        if (val.savings_balances) {
+          savingsBalances = val.savings_balances;
+        } else if (val.savings_balance) {
+          savingsBalances = { "Main Savings": parseFloat(val.savings_balance) || 0 };
+        } else {
+          savingsBalances = {};
+        }
 
         if (val.etienne_repaid !== undefined) etienneRepaid = parseFloat(val.etienne_repaid) || 0;
         updateEtienneChart();
@@ -1224,32 +1243,112 @@
       });
     }
 
-    // SAVINGS TABLE UPDATES
-    function updateSavingsTableTally(op) {
-      const input = document.getElementById('savings-table-input');
+    // SAVINGS TABLE LOGIC & UNDO
+    function adjustSavings(accName, inputId, op) {
+      const input = document.getElementById(inputId + '-input');
       const amt = parseFloat(input.value) || 0;
       if (amt <= 0) return;
-
-      if (op === 'add') {
-        savingsBalance += amt;
-      } else {
-        savingsBalance -= amt;
-      }
-      
-      document.getElementById('savings-table-balance').textContent = fmt(savingsBalance);
+      processSavingsAdjustment(accName, op === 'add' ? amt : -amt);
       input.value = '';
-      saveData();
     }
 
-    // ETIENNE CHART UPDATES
+    function applySavingsBudget(accName, amt) {
+      if(amt <= 0) return;
+      processSavingsAdjustment(accName, amt);
+    }
+
+    function processSavingsAdjustment(accName, changeAmount) {
+      if(!savingsBalances[accName]) savingsBalances[accName] = 0;
+      savingsBalances[accName] += changeAmount;
+      
+      lastSavingsTx = { account: accName, change: changeAmount };
+      
+      const bannerSign = changeAmount >= 0 ? '+' : '';
+      document.getElementById('undo-savings-name').textContent = accName + ' (' + bannerSign + fmt(changeAmount) + ')';
+      document.getElementById('undo-savings-banner').classList.remove('hidden');
+
+      saveData();
+      renderSavingsTable();
+    }
+
+    function undoSavingsTx() {
+      if(!lastSavingsTx) return;
+      savingsBalances[lastSavingsTx.account] -= lastSavingsTx.change;
+      lastSavingsTx = null;
+      document.getElementById('undo-savings-banner').classList.add('hidden');
+      saveData();
+      renderSavingsTable();
+    }
+    
+    function dismissSavingsUndo() {
+      lastSavingsTx = null;
+      document.getElementById('undo-savings-banner').classList.add('hidden');
+    }
+
+    function renderSavingsTable() {
+      const tbody = document.getElementById('savings-table-tbody');
+      tbody.innerHTML = '';
+      
+      const savingsCats = hhCategories.filter(c => (c.group || '').trim().toLowerCase() === 'savings');
+      
+      // Combine mapped budget rows with unbudgeted manual rows
+      const allSavings = [
+        ...savingsCats.map(c => ({ name: c.name, budgeted: Number(c.monthly)||0, isBudgeted: true })), 
+        { name: "Ollie's Savings Account", budgeted: 0, isBudgeted: false }
+      ];
+      
+      allSavings.forEach((acc, idx) => {
+        const bal = savingsBalances[acc.name] || 0;
+        const safeId = 'sav-acc-' + idx;
+        
+        tbody.innerHTML += `
+          <tr class="hover:bg-teal-50/40 bg-white">
+            <td class="py-3 px-3 font-bold text-slate-900">${escAttr(acc.name)}</td>
+            <td class="py-3 px-3 text-right font-medium text-slate-700">${acc.isBudgeted ? fmt(acc.budgeted) : '<span class="text-slate-400 text-xs italic">Unbudgeted</span>'}</td>
+            <td class="py-3 px-3 text-right font-extrabold text-teal-700 text-lg">${fmt(bal)}</td>
+            <td class="py-3 px-3">
+              <div class="flex items-center justify-end gap-1.5 min-w-[210px]">
+                ${acc.isBudgeted ? `<button onclick="applySavingsBudget('${escAttr(acc.name)}', ${acc.budgeted})" class="px-2 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold rounded-lg text-[10px] shadow-sm uppercase tracking-wide mr-1" title="Deposit monthly budgeted amount">+ Budget</button>` : ''}
+                <input id="${safeId}-input" type="number" step="0.01" onwheel="this.blur()" class="w-20 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 text-right text-xs focus:outline-none focus:border-teal-600" placeholder="Amt" />
+                <button onclick="adjustSavings('${escAttr(acc.name)}', '${safeId}', 'add')" class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs shadow-sm" title="Add to balance">+</button>
+                <button onclick="adjustSavings('${escAttr(acc.name)}', '${safeId}', 'sub')" class="px-2.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-lg text-xs shadow-sm" title="Take out of balance">-</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // ETIENNE CHART LOGIC & UNDO
     function addEtienneRepayment() {
       const input = document.getElementById('etienne-payment-input');
       const amt = parseFloat(input.value) || 0;
       if (amt <= 0) return;
+      
       etienneRepaid += amt;
+      lastEtienneTx = amt;
+
+      document.getElementById('undo-etienne-amt').textContent = fmt(amt);
+      document.getElementById('undo-etienne-banner').classList.remove('hidden');
+
       input.value = '';
       saveData();
       updateEtienneChart();
+    }
+
+    function undoEtienneTx() {
+      if(!lastEtienneTx) return;
+      etienneRepaid -= lastEtienneTx;
+      if(etienneRepaid < 0) etienneRepaid = 0;
+      lastEtienneTx = null;
+      document.getElementById('undo-etienne-banner').classList.add('hidden');
+      saveData();
+      updateEtienneChart();
+    }
+
+    function dismissEtienneUndo() {
+      lastEtienneTx = null;
+      document.getElementById('undo-etienne-banner').classList.add('hidden');
     }
 
     function updateEtienneChart() {
@@ -1285,7 +1384,6 @@
       hhCategories.sort((a, b) => (Number(b.monthly) || 0) - (Number(a.monthly) || 0));
 
       let totMo = 0, totFn = 0, totWk = 0, totAct = 0;
-      let budgetedSavings = 0;
       const filteredHhExp = hhExpenses.filter(e => e.date && e.date.startsWith(currentMonth));
       const subcatMap = {};
 
@@ -1314,9 +1412,6 @@
           totAct += actual;
 
           const rawGroup = (cat.group || 'General').trim();
-          if (rawGroup.toLowerCase() === 'savings') {
-             budgetedSavings += mo;
-          }
 
           // Aggregate by Sub-Category (group)
           const groupKey = rawGroup.toLowerCase() || 'general';
@@ -1378,8 +1473,8 @@
         });
       }
       
-      // Update Savings table budget total
-      document.getElementById('savings-budgeted-mo').textContent = fmt(budgetedSavings);
+      // Update Savings tracking table
+      renderSavingsTable();
 
       // Render Sub-Category Totals Table (sorted highest to lowest by monthly budget)
       const subcatList = Object.values(subcatMap).sort((a, b) => b.mo - a.mo);
