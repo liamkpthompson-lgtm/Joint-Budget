@@ -99,7 +99,8 @@
 
         <div class="flex items-center gap-3 bg-white border border-blue-200 px-4 py-2.5 rounded-2xl self-start sm:self-auto shadow-sm">
           <span class="text-xs font-bold text-slate-700">📅 Active Month:</span>
-          <input id="global-month-selector" type="month" onchange="changeGlobalMonth(this.value)" class="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-600" />
+          <!-- Widened and increased text size so the year fits properly -->
+          <input id="global-month-selector" type="month" onchange="changeGlobalMonth(this.value)" class="w-36 sm:w-40 bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm font-bold text-slate-900 focus:outline-none focus:border-blue-600" />
         </div>
       </div>
     </header>
@@ -1135,6 +1136,10 @@
     document.getElementById('liam-log-date').value = currentMonth + '-01';
     document.getElementById('amy-log-date').value = currentMonth + '-01';
 
+    // Set active tab on load from localStorage
+    const savedTab = localStorage.getItem('budgetPortalActiveTab') || 'household';
+    switchTab(savedTab);
+
     // Helper: Smoothly scrolls a table container horizontally
     function scrollTable(containerId, offset) {
       const el = document.getElementById(containerId);
@@ -1270,10 +1275,13 @@
 
     function switchTab(tab) {
       ['household', 'liam', 'amy', 'hh-log', 'liam-log', 'amy-log'].forEach(t => {
-        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+        const section = document.getElementById('tab-' + t);
+        if (section) section.classList.toggle('hidden', t !== tab);
+
         const btn = document.getElementById('tab-btn-' + t);
-        btn.className = (t === tab ? 'tab-active' : 'tab-inactive') + ' py-3 px-3 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-1.5';
+        if (btn) btn.className = (t === tab ? 'tab-active' : 'tab-inactive') + ' py-3 px-3 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-1.5';
       });
+      localStorage.setItem('budgetPortalActiveTab', tab);
     }
 
     // SAVINGS TABLE LOGIC & UNDO
@@ -1584,7 +1592,7 @@
         });
       }
       
-      // Update Savings tracking table
+      // Update Savings tracking table (Syncs automatically now)
       renderSavingsTable();
 
       // Render Sub-Category Totals Table (sorted highest to lowest by monthly budget)
