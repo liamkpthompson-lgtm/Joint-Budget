@@ -305,7 +305,7 @@
              <span class="w-8 h-8 rounded-lg bg-white border border-teal-200 flex items-center justify-center text-sm shadow-sm">🏦</span>
              <div>
                <h2 class="text-base font-bold text-slate-900">Savings Account Tracker</h2>
-               <p class="text-[11px] text-slate-600 font-medium">Any category in the "Savings" sub-category syncs here.</p>
+               <p class="text-[11px] text-slate-600 font-medium">Click any row to expand transaction history. Logs any category under "Savings".</p>
              </div>
           </div>
           <div class="table-scroll-container rounded-xl border border-teal-200 bg-white flex-1 relative">
@@ -315,11 +315,11 @@
                   <th class="py-2.5 px-3 font-bold">Account</th>
                   <th class="py-2.5 px-3 text-right font-bold">Budgeted (Mo)</th>
                   <th class="py-2.5 px-3 text-right font-bold">Current Balance</th>
-                  <th class="py-2.5 px-3 text-right font-bold min-w-[210px]">Add / Take Out</th>
+                  <th class="py-2.5 px-3 text-right font-bold min-w-[340px]">Add / Take Out</th>
                 </tr>
               </thead>
               <tbody id="savings-table-tbody" class="divide-y divide-slate-200">
-                <!-- Dynamically populated -->
+                <!-- Dynamically populated from group="Savings" -->
               </tbody>
             </table>
           </div>
@@ -1086,6 +1086,9 @@
     
     // Trackers
     let savingsBalances = {};
+    let savingsTransactions = [];
+    let openSavingsRows = {}; // Remembers which transaction drawers are open
+
     let etienneRepaid = 0.00;
 
     // Modal & Undo state
@@ -1138,6 +1141,7 @@
         liam_income: document.getElementById('liam-baseline').value,
         amy_income: document.getElementById('amy-baseline').value,
         savings_balances: savingsBalances,
+        savings_transactions: savingsTransactions,
         etienne_repaid: etienneRepaid,
         selected_month: currentMonth
       };
@@ -1174,7 +1178,7 @@
         amyIncome = parseFloat(val.amy_income) || 1585.00;
         document.getElementById('amy-baseline').value = amyIncome.toFixed(2);
 
-        // Migrate old singular savings_balance to new structure if needed
+        // Savings Data Migration & Load
         if (val.savings_balances) {
           savingsBalances = val.savings_balances;
         } else if (val.savings_balance) {
@@ -1182,6 +1186,8 @@
         } else {
           savingsBalances = {};
         }
+
+        savingsTransactions = toArray(val.savings_transactions, []);
 
         if (val.etienne_repaid !== undefined) etienneRepaid = parseFloat(val.etienne_repaid) || 0;
         updateEtienneChart();
@@ -1244,27 +1250,50 @@
     }
 
     // SAVINGS TABLE LOGIC & UNDO
-    function adjustSavings(accName, inputId, op) {
-      const input = document.getElementById(inputId + '-input');
-      const amt = parseFloat(input.value) || 0;
+    function toggleSavingsRow(safeId) {
+      const el = document.getElementById('sav-detail-' + safeId);
+      if (el) {
+        el.classList.toggle('hidden');
+        openSavingsRows[safeId] = !el.classList.contains('hidden');
+      }
+    }
+
+    function adjustSavings(accName, safeId, op) {
+      const amtInput = document.getElementById(safeId + '-input');
+      const descInput = document.getElementById(safeId + '-desc');
+      
+      const amt = parseFloat(amtInput.value) || 0;
+      const desc = descInput.value.trim() || (op === 'add' ? 'Manual Deposit' : 'Manual Withdrawal');
+      
       if (amt <= 0) return;
-      processSavingsAdjustment(accName, op === 'add' ? amt : -amt);
-      input.value = '';
+      processSavingsAdjustment(accName, op === 'add' ? amt : -amt, desc);
+      
+      amtInput.value = '';
+      descInput.value = '';
     }
 
     function applySavingsBudget(accName, amt) {
       if(amt <= 0) return;
-      processSavingsAdjustment(accName, amt);
+      processSavingsAdjustment(accName, amt, 'Monthly Budget Contribution');
     }
 
-    function processSavingsAdjustment(accName, changeAmount) {
+    function processSavingsAdjustment(accName, changeAmount, reason) {
       if(!savingsBalances[accName]) savingsBalances[accName] = 0;
       savingsBalances[accName] += changeAmount;
       
-      lastSavingsTx = { account: accName, change: changeAmount };
+      const tx = {
+        id: Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        account: accName,
+        desc: reason,
+        amt: changeAmount
+      };
+      savingsTransactions.push(tx);
+
+      lastSavingsTx = tx;
       
       const bannerSign = changeAmount >= 0 ? '+' : '';
-      document.getElementById('undo-savings-name').textContent = accName + ' (' + bannerSign + fmt(changeAmount) + ')';
+      document.getElementById('undo-savings-name').textContent = accName + ' (' + bannerSign + fmt(changeAmount) + ' - ' + reason + ')';
       document.getElementById('undo-savings-banner').classList.remove('hidden');
 
       saveData();
@@ -1273,9 +1302,22 @@
 
     function undoSavingsTx() {
       if(!lastSavingsTx) return;
-      savingsBalances[lastSavingsTx.account] -= lastSavingsTx.change;
+      
+      // Filter out the transaction
+      savingsTransactions = savingsTransactions.filter(t => t.id !== lastSavingsTx.id);
+      // Reverse the balance
+      savingsBalances[lastSavingsTx.account] -= lastSavingsTx.amt;
+      
       lastSavingsTx = null;
       document.getElementById('undo-savings-banner').classList.add('hidden');
+      
+      saveData();
+      renderSavingsTable();
+    }
+
+    function deleteSavingsTx(id, accName, amt) {
+      savingsTransactions = savingsTransactions.filter(t => t.id !== id);
+      savingsBalances[accName] -= amt;
       saveData();
       renderSavingsTable();
     }
@@ -1289,31 +1331,73 @@
       const tbody = document.getElementById('savings-table-tbody');
       tbody.innerHTML = '';
       
+      // Auto-grab any categories placed in the "Savings" sub-category
       const savingsCats = hhCategories.filter(c => (c.group || '').trim().toLowerCase() === 'savings');
       
-      // Combine mapped budget rows with unbudgeted manual rows
-      const allSavings = [
-        ...savingsCats.map(c => ({ name: c.name, budgeted: Number(c.monthly)||0, isBudgeted: true })), 
-        { name: "Ollie's Savings Account", budgeted: 0, isBudgeted: false }
-      ];
+      const allSavings = savingsCats.map(c => ({ 
+        name: c.name, 
+        budgeted: Number(c.monthly)||0,
+        icon: c.icon || '🏦'
+      }));
+      
+      if(allSavings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-500 font-medium">Create a category with the Sub-Category group "Savings" to see it tracked here.</td></tr>`;
+        return;
+      }
       
       allSavings.forEach((acc, idx) => {
         const bal = savingsBalances[acc.name] || 0;
         const safeId = 'sav-acc-' + idx;
         
+        // Filter transactions for this specific account
+        const accountTxs = savingsTransactions.filter(t => t.account === acc.name).sort((a,b) => b.id - a.id);
+        
+        let txRowsHtml = accountTxs.length === 0 
+          ? `<tr><td colspan="4" class="py-3 px-3 text-center text-slate-500 text-xs italic">No transactions yet.</td></tr>`
+          : accountTxs.map(tx => `
+              <tr class="hover:bg-slate-100/50">
+                <td class="py-1.5 px-3 font-medium text-slate-500">${tx.date}</td>
+                <td class="py-1.5 px-3 font-semibold text-slate-700">${tx.desc}</td>
+                <td class="py-1.5 px-3 text-right font-bold ${tx.amt >= 0 ? 'text-teal-700' : 'text-rose-600'}">${tx.amt > 0 ? '+' : ''}${fmt(tx.amt)}</td>
+                <td class="py-1.5 px-3 text-right">
+                  <button onclick="deleteSavingsTx(${tx.id}, '${escAttr(acc.name)}', ${tx.amt})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-[10px] font-bold">Del</button>
+                </td>
+              </tr>
+            `).join('');
+
+        const isRowOpen = openSavingsRows[safeId] ? '' : 'hidden';
+
         tbody.innerHTML += `
-          <tr class="hover:bg-teal-50/40 bg-white">
-            <td class="py-3 px-3 font-bold text-slate-900">${escAttr(acc.name)}</td>
-            <td class="py-3 px-3 text-right font-medium text-slate-700">${acc.isBudgeted ? fmt(acc.budgeted) : '<span class="text-slate-400 text-xs italic">Unbudgeted</span>'}</td>
+          <tr class="group hover:bg-teal-50/40 bg-white cursor-pointer" onclick="toggleSavingsRow('${safeId}')">
+            <td class="py-3 px-3 font-bold text-slate-900"><span class="mr-2">${acc.icon}</span>${escAttr(acc.name)} <span class="text-teal-400 font-normal ml-1 text-[10px]">▼</span></td>
+            <td class="py-3 px-3 text-right font-medium text-slate-700">${fmt(acc.budgeted)}</td>
             <td class="py-3 px-3 text-right font-extrabold text-teal-700 text-lg">${fmt(bal)}</td>
-            <td class="py-3 px-3">
-              <div class="flex items-center justify-end gap-1.5 min-w-[210px]">
-                ${acc.isBudgeted ? `<button onclick="applySavingsBudget('${escAttr(acc.name)}', ${acc.budgeted})" class="px-2 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold rounded-lg text-[10px] shadow-sm uppercase tracking-wide mr-1" title="Deposit monthly budgeted amount">+ Budget</button>` : ''}
-                <input id="${safeId}-input" type="number" step="0.01" onwheel="this.blur()" class="w-20 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 text-right text-xs focus:outline-none focus:border-teal-600" placeholder="Amt" />
+            <td class="py-3 px-3" onclick="event.stopPropagation()">
+              <div class="flex items-center justify-end gap-1.5 min-w-[340px]">
+                <button onclick="applySavingsBudget('${escAttr(acc.name)}', ${acc.budgeted})" class="px-2 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold rounded-lg text-[10px] shadow-sm uppercase tracking-wide mr-2" title="Deposit monthly budgeted amount">+ Budget</button>
+                <input id="${safeId}-desc" type="text" class="w-28 sm:w-32 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-teal-600" placeholder="Reason (e.g. Gift)" />
+                <input id="${safeId}-input" type="number" step="0.01" onwheel="this.blur()" class="w-16 sm:w-20 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 text-right text-xs focus:outline-none focus:border-teal-600" placeholder="Amt" />
                 <button onclick="adjustSavings('${escAttr(acc.name)}', '${safeId}', 'add')" class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs shadow-sm" title="Add to balance">+</button>
                 <button onclick="adjustSavings('${escAttr(acc.name)}', '${safeId}', 'sub')" class="px-2.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-lg text-xs shadow-sm" title="Take out of balance">-</button>
               </div>
             </td>
+          </tr>
+          <tr id="sav-detail-${safeId}" class="${isRowOpen} bg-slate-50 border-b border-teal-100">
+             <td colspan="4" class="p-3">
+               <table class="w-full text-xs text-left bg-white border border-slate-200 rounded-lg overflow-hidden">
+                 <thead class="bg-slate-100 text-[10px] text-slate-500 uppercase">
+                   <tr>
+                     <th class="py-1.5 px-3 w-1/4">Date</th>
+                     <th class="py-1.5 px-3 w-1/2">Reason</th>
+                     <th class="py-1.5 px-3 text-right w-1/4">Amount</th>
+                     <th class="py-1.5 px-3 text-right">Actions</th>
+                   </tr>
+                 </thead>
+                 <tbody class="divide-y divide-slate-100">
+                   ${txRowsHtml}
+                 </tbody>
+               </table>
+             </td>
           </tr>
         `;
       });
@@ -1473,7 +1557,7 @@
         });
       }
       
-      // Update Savings tracking table
+      // Update Savings tracking table (Syncs automatically now)
       renderSavingsTable();
 
       // Render Sub-Category Totals Table (sorted highest to lowest by monthly budget)
