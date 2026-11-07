@@ -799,9 +799,18 @@
     <!-- ==================== TAB 4: JOINT HOUSEHOLD EXPENSE LOG ==================== -->
     <section id="tab-hh-log" class="hidden space-y-6">
       <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
-        <div class="rounded-xl mb-5 border border-indigo-200 bg-gradient-to-r from-indigo-50 via-blue-50 to-white p-5">
-          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">🧾 Joint Household Expense Log</h2>
-          <p class="text-xs text-slate-600 font-medium mt-0.5">Log joint purchases below to automatically update Joint Dashboard actual spend.</p>
+        <div class="rounded-xl mb-5 border border-indigo-200 bg-gradient-to-r from-indigo-50 via-blue-50 to-white p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-slate-900">🧾 Joint Household Expense Log</h2>
+            <p class="text-xs text-slate-600 font-medium mt-0.5">Log joint purchases below to automatically update Joint Dashboard actual spend.</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs font-bold text-indigo-900 uppercase tracking-wide">Sort:</span>
+            <select id="hh-log-sort" onchange="renderExpenseLogs('hh')" class="bg-white border border-indigo-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500 shadow-sm cursor-pointer">
+              <option value="desc">Newest to Oldest</option>
+              <option value="asc">Oldest to Newest</option>
+            </select>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
@@ -841,9 +850,18 @@
     <!-- ==================== TAB 5: LIAM'S EXPENSE LOG ==================== -->
     <section id="tab-liam-log" class="hidden space-y-6">
       <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
-        <div class="rounded-xl mb-5 border border-blue-200 bg-gradient-to-r from-blue-50 via-sky-50 to-white p-5">
-          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">💳 Liam's Expense Log</h2>
-          <p class="text-xs text-slate-600 font-medium mt-0.5">Select a category for each transaction to automatically sync with Liam's Dashboard actual spend.</p>
+        <div class="rounded-xl mb-5 border border-blue-200 bg-gradient-to-r from-blue-50 via-sky-50 to-white p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-slate-900">💳 Liam's Expense Log</h2>
+            <p class="text-xs text-slate-600 font-medium mt-0.5">Select a category for each transaction to automatically sync with Liam's Dashboard actual spend.</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs font-bold text-blue-900 uppercase tracking-wide">Sort:</span>
+            <select id="liam-log-sort" onchange="renderExpenseLogs('liam')" class="bg-white border border-blue-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500 shadow-sm cursor-pointer">
+              <option value="desc">Newest to Oldest</option>
+              <option value="asc">Oldest to Newest</option>
+            </select>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
@@ -883,9 +901,18 @@
     <!-- ==================== TAB 6: AMY'S EXPENSE LOG ==================== -->
     <section id="tab-amy-log" class="hidden space-y-6">
       <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
-        <div class="rounded-xl mb-5 border border-pink-200 bg-gradient-to-r from-pink-50 via-rose-50 to-white p-5">
-          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">🛍️ Amy's Expense Log</h2>
-          <p class="text-xs text-slate-600 font-medium mt-0.5">Select a category for each transaction to automatically sync with Amy's Dashboard actual spend.</p>
+        <div class="rounded-xl mb-5 border border-pink-200 bg-gradient-to-r from-pink-50 via-rose-50 to-white p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-slate-900">🛍️ Amy's Expense Log</h2>
+            <p class="text-xs text-slate-600 font-medium mt-0.5">Select a category for each transaction to automatically sync with Amy's Dashboard actual spend.</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs font-bold text-pink-900 uppercase tracking-wide">Sort:</span>
+            <select id="amy-log-sort" onchange="renderExpenseLogs('amy')" class="bg-white border border-pink-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-pink-500 shadow-sm cursor-pointer">
+              <option value="desc">Newest to Oldest</option>
+              <option value="asc">Oldest to Newest</option>
+            </select>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
@@ -1557,7 +1584,7 @@
         });
       }
       
-      // Update Savings tracking table (Syncs automatically now)
+      // Update Savings tracking table
       renderSavingsTable();
 
       // Render Sub-Category Totals Table (sorted highest to lowest by monthly budget)
@@ -2126,7 +2153,21 @@
 
     function renderExpenseLogs(type) {
       const rawList = getExpenseList(type);
-      const list = rawList.filter(e => e.date && e.date.startsWith(currentMonth));
+      let list = rawList.filter(e => e.date && e.date.startsWith(currentMonth));
+      
+      const sortSelect = document.getElementById(type + '-log-sort');
+      const sortOrder = sortSelect ? sortSelect.value : 'desc';
+
+      // Sort by Date, then by ID as fallback
+      list.sort((a, b) => {
+        const dateA = a.date;
+        const dateB = b.date;
+        if (dateA !== dateB) {
+          return sortOrder === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+        }
+        return sortOrder === 'asc' ? a.id - b.id : b.id - a.id;
+      });
+
       const tbody = document.getElementById(type + '-log-tbody');
 
       if (list.length === 0) {
