@@ -104,7 +104,7 @@
       </div>
     </header>
 
-    <!-- Undo Delete Notification Banner -->
+    <!-- Undo Delete Notification Banners -->
     <div id="undo-banner" class="hidden bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm">
       <div class="text-xs sm:text-sm font-semibold">
         🗑️ Deleted category <span id="undo-cat-name" class="font-extrabold underline"></span>.
@@ -112,6 +112,16 @@
       <div class="flex items-center gap-2">
         <button onclick="undoDeleteCategory()" class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg shadow-sm">Undo Delete</button>
         <button onclick="dismissUndo()" class="px-2 py-1 text-amber-800 hover:bg-amber-100 text-xs font-bold rounded-lg">✕</button>
+      </div>
+    </div>
+
+    <div id="undo-expense-banner" class="hidden bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm">
+      <div class="text-xs sm:text-sm font-semibold">
+        🗑️ Deleted expense <span id="undo-exp-name" class="font-extrabold underline"></span>.
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="undoDeleteExpense()" class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg shadow-sm">Undo Delete</button>
+        <button onclick="dismissUndoExpense()" class="px-2 py-1 text-amber-800 hover:bg-amber-100 text-xs font-bold rounded-lg">✕</button>
       </div>
     </div>
 
@@ -145,38 +155,52 @@
 
     <!-- ==================== TAB 1: JOINT HOUSEHOLD DASHBOARD ==================== -->
     <section id="tab-household" class="space-y-6">
-      <!-- Top KPI Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex items-start justify-between shadow-sm">
-          <div>
-            <div class="text-xs font-bold uppercase tracking-wider text-emerald-900">Monthly Joint Budget Remaining</div>
-            <div id="hh-kpi-monthly" class="text-2xl sm:text-3xl font-extrabold text-emerald-700 mt-1">$7,151.25</div>
-            <div class="text-xs text-emerald-800/80 font-medium mt-1">Total monthly unspent joint budget</div>
+      <!-- Top KPI Cards & Savings Tracker -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        
+        <!-- Savings & Account Tracker -->
+        <div class="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+          <div class="flex justify-between items-start">
+             <div>
+               <div class="text-[11px] font-bold uppercase tracking-wider text-teal-900">Savings & Account Tally</div>
+               <div id="savings-tally-display" class="text-2xl font-extrabold text-teal-700 mt-1">$0.00</div>
+             </div>
+             <div class="w-10 h-10 rounded-xl bg-white border border-teal-200 flex items-center justify-center text-teal-700 text-lg shadow-sm">🏦</div>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-white border border-emerald-200 flex items-center justify-center text-emerald-700 text-xl shrink-0 shadow-sm">
-            💰
-          </div>
-        </div>
-
-        <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 sm:p-5 flex items-start justify-between shadow-sm">
-          <div>
-            <div class="text-xs font-bold uppercase tracking-wider text-blue-900">Fortnightly Joint Budget Required</div>
-            <div id="hh-kpi-fortnightly" class="text-2xl sm:text-3xl font-extrabold text-blue-700 mt-1">$3,295.85</div>
-            <div class="text-xs text-blue-800/80 font-medium mt-1">Equivalent per fortnight</div>
-          </div>
-          <div class="w-12 h-12 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-blue-700 text-xl shrink-0 shadow-sm">
-            📅
+          <div class="mt-3 flex gap-1.5">
+             <input id="extra-money-input" type="number" step="0.01" placeholder="Amount" onwheel="this.blur()" class="w-full bg-white border border-teal-300 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none focus:border-teal-600" />
+             <button onclick="updateSavingsTally('add')" class="px-2 py-1 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs shadow-sm" title="Add to Tally">+</button>
+             <button onclick="updateSavingsTally('sub')" class="px-2 py-1 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-lg text-xs shadow-sm" title="Deduct from Tally">-</button>
           </div>
         </div>
 
-        <div class="bg-indigo-50/80 border border-indigo-200 rounded-2xl p-4 sm:p-5 flex items-start justify-between shadow-sm">
-          <div>
-            <div class="text-xs font-bold uppercase tracking-wider text-indigo-900">Weekly Joint Budget Required</div>
-            <div id="hh-kpi-weekly" class="text-2xl sm:text-3xl font-extrabold text-indigo-700 mt-1">$1,647.92</div>
-            <div class="text-xs text-indigo-800/80 font-medium mt-1">Equivalent per week</div>
+        <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-900">Monthly Joint Required</div>
+              <div id="hh-kpi-monthly" class="text-2xl font-extrabold text-emerald-700 mt-1">$0.00</div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-white border border-emerald-200 flex items-center justify-center text-emerald-700 text-lg shadow-sm">💰</div>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-white border border-indigo-200 flex items-center justify-center text-indigo-700 text-xl shrink-0 shadow-sm">
-            ⏱️
+        </div>
+
+        <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-blue-900">Fortnightly Joint Required</div>
+              <div id="hh-kpi-fortnightly" class="text-2xl font-extrabold text-blue-700 mt-1">$0.00</div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-blue-700 text-lg shadow-sm">📅</div>
+          </div>
+        </div>
+
+        <div class="bg-indigo-50/80 border border-indigo-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-indigo-900">Weekly Joint Required</div>
+              <div id="hh-kpi-weekly" class="text-2xl font-extrabold text-indigo-700 mt-1">$0.00</div>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-white border border-indigo-200 flex items-center justify-center text-indigo-700 text-lg shadow-sm">⏱️</div>
           </div>
         </div>
       </div>
@@ -301,11 +325,13 @@
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
                 <th class="sticky left-0 z-20 bg-slate-100 py-3 px-3 font-bold min-w-[190px] sm:min-w-[230px] sticky-col-shadow">Category &amp; Sub-Category</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Monthly Budget</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Fortnightly</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Weekly</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[100px]">Actual Spend</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[115px]">Surplus / Rem</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Monthly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Fortnightly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Weekly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Actual</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Rolling Weekly Remaining">Rem (Wk)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Rolling Fortnightly Remaining">Rem (Fn)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Monthly Remaining">Rem (Mo)</th>
                 <th class="py-3 px-3 text-right font-bold min-w-[115px]">Actions</th>
               </tr>
             </thead>
@@ -317,7 +343,9 @@
                 <td id="hh-tot-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
                 <td id="hh-tot-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
                 <td id="hh-tot-act" class="py-3 px-2.5 text-right">$0.00</td>
-                <td id="hh-tot-rem" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
+                <td id="hh-tot-rem-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
+                <td id="hh-tot-rem-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
+                <td id="hh-tot-rem-mo" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -332,7 +360,7 @@
             <span class="w-8 h-8 rounded-lg bg-white border border-indigo-200 flex items-center justify-center text-sm shadow-sm">📊</span>
             <div>
               <h2 class="text-base sm:text-lg font-bold text-slate-900">Joint Sub-Category Totals Breakdown</h2>
-              <p class="text-[11px] text-slate-600 font-medium">Automatic totals grouped by sub-category (sorted highest to lowest budget)</p>
+              <p class="text-[11px] text-slate-600 font-medium">Automatic totals grouped by sub-category</p>
             </div>
           </div>
           <div class="flex items-center gap-1.5 self-end sm:self-auto">
@@ -347,11 +375,13 @@
               <tr>
                 <th class="sticky left-0 z-20 bg-indigo-100 py-3 px-3 font-bold min-w-[180px] sm:min-w-[210px] sticky-col-shadow">Sub-Category / Group</th>
                 <th class="py-3 px-2.5 text-right font-bold min-w-[85px]">% Share</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Monthly Budget</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Fortnightly</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Weekly</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[105px]">Actual Spend</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[120px]">Surplus / Rem</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Monthly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Fortnightly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Weekly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Actual</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Rem (Wk)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Rem (Fn)</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[95px]">Rem (Mo)</th>
               </tr>
             </thead>
             <tbody id="hh-subcat-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -363,7 +393,9 @@
                 <td id="hh-subcat-tot-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
                 <td id="hh-subcat-tot-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
                 <td id="hh-subcat-tot-act" class="py-3 px-2.5 text-right">$0.00</td>
-                <td id="hh-subcat-tot-rem" class="py-3 px-3 text-right text-emerald-700">$0.00</td>
+                <td id="hh-subcat-tot-rem-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
+                <td id="hh-subcat-tot-rem-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
+                <td id="hh-subcat-tot-rem-mo" class="py-3 px-3 text-right text-emerald-700">$0.00</td>
               </tr>
             </tfoot>
           </table>
@@ -385,8 +417,8 @@
         </div>
       </div>
 
-      <!-- Top 5 Liam KPI Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <!-- Top Liam KPI Cards (Reduced to 4) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm">
           <div class="flex items-center justify-between">
             <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700">Monthly Budget</div>
@@ -422,15 +454,6 @@
           <div id="liam-kpi-act" class="text-2xl font-extrabold text-amber-700 mt-2">$0.00</div>
           <div class="text-xs text-amber-800/80 font-medium mt-1.5">Logged in active month</div>
         </div>
-
-        <div class="bg-emerald-50/90 border border-emerald-300 rounded-2xl p-4 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-900">Fortnightly Remaining</div>
-            <span>💰</span>
-          </div>
-          <div id="liam-kpi-rem" class="text-2xl font-extrabold text-emerald-700 mt-2">$0.00</div>
-          <div class="text-xs text-emerald-800/80 font-medium mt-1.5">Fortnightly budget minus spend</div>
-        </div>
       </div>
 
       <!-- Liam's Budget Category Table -->
@@ -465,11 +488,13 @@
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
                 <th class="sticky left-0 z-20 bg-slate-100 py-3 px-3 font-bold min-w-[190px] sm:min-w-[230px] sticky-col-shadow">Category &amp; Sub-Category</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Monthly Budget</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Fortnightly</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Weekly</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[100px]">Actual Spend</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[115px]">Remaining (FN)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Monthly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Fortnightly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Weekly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Actual Spend</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Rolling Weekly Remaining">Rem (Wk)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Rolling Fortnightly Remaining">Rem (Fn)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Monthly Remaining">Rem (Mo)</th>
                 <th class="py-3 px-3 text-right font-bold min-w-[115px]">Actions</th>
               </tr>
             </thead>
@@ -481,7 +506,9 @@
                 <td id="liam-tot-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
                 <td id="liam-tot-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
                 <td id="liam-tot-act" class="py-3 px-2.5 text-right">$0.00</td>
-                <td id="liam-tot-rem" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
+                <td id="liam-tot-rem-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
+                <td id="liam-tot-rem-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
+                <td id="liam-tot-rem-mo" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -502,7 +529,8 @@
                   <th class="py-2.5 px-3 text-right font-bold">Fortnightly</th>
                   <th class="py-2.5 px-3 text-right font-bold">Weekly</th>
                   <th class="py-2.5 px-3 text-right font-bold">Actual</th>
-                  <th class="py-2.5 px-3 text-right font-bold">Remaining (FN)</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Rem (Wk)</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Rem (Fn)</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200 bg-white">
@@ -510,35 +538,38 @@
                   <td class="py-2.5 px-3 font-bold text-slate-900">
                     <div class="flex items-center gap-2">
                       <span class="w-7 h-7 rounded-lg bg-purple-100 border border-purple-200 text-purple-700 flex items-center justify-center">💳</span>
-                      <span>Spending Account</span>
+                      <span>Spending</span>
                     </div>
                   </td>
                   <td id="liam-acc-spend-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="liam-acc-spend-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="liam-acc-spend-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="liam-acc-spend-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="liam-acc-spend-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                  <td id="liam-acc-spend-rem-wk" class="py-2.5 px-3 text-right font-bold text-indigo-700">$0.00</td>
+                  <td id="liam-acc-spend-rem-fn" class="py-2.5 px-3 text-right font-bold text-blue-700">$0.00</td>
                 </tr>
                 <tr>
                   <td class="py-2.5 px-3 font-bold text-slate-900">
                     <div class="flex items-center gap-2">
                       <span class="w-7 h-7 rounded-lg bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center">🧾</span>
-                      <span>Bills Account</span>
+                      <span>Bills</span>
                     </div>
                   </td>
                   <td id="liam-acc-bills-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="liam-acc-bills-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="liam-acc-bills-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="liam-acc-bills-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="liam-acc-bills-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                  <td id="liam-acc-bills-rem-wk" class="py-2.5 px-3 text-right font-bold text-indigo-700">$0.00</td>
+                  <td id="liam-acc-bills-rem-fn" class="py-2.5 px-3 text-right font-bold text-blue-700">$0.00</td>
                 </tr>
                 <tr class="font-bold bg-purple-50/80 text-slate-900 border-t-2 border-purple-200">
-                  <td class="py-2.5 px-3">Total Liam's Accounts</td>
+                  <td class="py-2.5 px-3">Total Accounts</td>
                   <td id="liam-acc-tot-mo" class="py-2.5 px-3 text-right">$0.00</td>
                   <td id="liam-acc-tot-fn" class="py-2.5 px-3 text-right">$0.00</td>
                   <td id="liam-acc-tot-wk" class="py-2.5 px-3 text-right">$0.00</td>
                   <td id="liam-acc-tot-act" class="py-2.5 px-3 text-right">$0.00</td>
-                  <td id="liam-acc-tot-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
+                  <td id="liam-acc-tot-rem-wk" class="py-2.5 px-3 text-right text-indigo-700">$0.00</td>
+                  <td id="liam-acc-tot-rem-fn" class="py-2.5 px-3 text-right text-blue-700">$0.00</td>
                 </tr>
               </tbody>
             </table>
@@ -552,7 +583,7 @@
               <thead class="text-slate-700 border-b border-blue-200 uppercase text-[11px] bg-blue-100/60">
                 <tr>
                   <th class="py-2.5 px-3 font-bold">Frequency</th>
-                  <th class="py-2.5 px-3 text-right font-bold">Budgeted Expenses</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Budgeted</th>
                   <th class="py-2.5 px-3 text-right font-bold">Logged Spend</th>
                   <th class="py-2.5 px-3 text-right font-bold">Remaining</th>
                 </tr>
@@ -562,13 +593,13 @@
                   <td class="py-2.5 px-3 font-bold text-slate-900">⏱️ Weekly</td>
                   <td id="liam-freq-wk-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="liam-freq-wk-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="liam-freq-wk-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                  <td id="liam-freq-wk-rem" class="py-2.5 px-3 text-right font-bold text-indigo-700">$0.00</td>
                 </tr>
                 <tr>
                   <td class="py-2.5 px-3 font-bold text-slate-900">📅 Fortnightly</td>
                   <td id="liam-freq-fn-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="liam-freq-fn-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="liam-freq-fn-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                  <td id="liam-freq-fn-rem" class="py-2.5 px-3 text-right font-bold text-blue-700">$0.00</td>
                 </tr>
                 <tr>
                   <td class="py-2.5 px-3 font-bold text-slate-900">🗓️ Monthly</td>
@@ -603,8 +634,8 @@
         </div>
       </div>
 
-      <!-- Top 5 Amy KPI Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <!-- Top Amy KPI Cards (Reduced to 4) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm">
           <div class="flex items-center justify-between">
             <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700">Monthly Budget</div>
@@ -640,15 +671,6 @@
           <div id="amy-kpi-act" class="text-2xl font-extrabold text-amber-700 mt-2">$0.00</div>
           <div class="text-xs text-amber-800/80 font-medium mt-1.5">Logged in active month</div>
         </div>
-
-        <div class="bg-emerald-50/90 border border-emerald-300 rounded-2xl p-4 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-900">Fortnightly Remaining</div>
-            <span>💰</span>
-          </div>
-          <div id="amy-kpi-rem" class="text-2xl font-extrabold text-emerald-700 mt-2">$0.00</div>
-          <div class="text-xs text-emerald-800/80 font-medium mt-1.5">Fortnightly budget minus spend</div>
-        </div>
       </div>
 
       <!-- Amy's Budget Category Table -->
@@ -683,11 +705,13 @@
             <thead class="text-slate-700 border-b border-slate-200 uppercase text-[11px] bg-slate-100">
               <tr>
                 <th class="sticky left-0 z-20 bg-slate-100 py-3 px-3 font-bold min-w-[190px] sm:min-w-[230px] sticky-col-shadow">Category &amp; Sub-Category</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Monthly Budget</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Fortnightly</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[110px]">Weekly</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[100px]">Actual Spend</th>
-                <th class="py-3 px-2.5 text-right font-bold min-w-[115px]">Remaining (FN)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Monthly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Fortnightly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Weekly</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]">Actual Spend</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Rolling Weekly Remaining">Rem (Wk)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Rolling Fortnightly Remaining">Rem (Fn)</th>
+                <th class="py-3 px-2.5 text-right font-bold min-w-[95px]" title="Monthly Remaining">Rem (Mo)</th>
                 <th class="py-3 px-3 text-right font-bold min-w-[115px]">Actions</th>
               </tr>
             </thead>
@@ -699,7 +723,9 @@
                 <td id="amy-tot-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
                 <td id="amy-tot-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
                 <td id="amy-tot-act" class="py-3 px-2.5 text-right">$0.00</td>
-                <td id="amy-tot-rem" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
+                <td id="amy-tot-rem-wk" class="py-3 px-2.5 text-right text-indigo-700">$0.00</td>
+                <td id="amy-tot-rem-fn" class="py-3 px-2.5 text-right text-blue-700">$0.00</td>
+                <td id="amy-tot-rem-mo" class="py-3 px-2.5 text-right text-emerald-700">$0.00</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -720,7 +746,8 @@
                   <th class="py-2.5 px-3 text-right font-bold">Fortnightly</th>
                   <th class="py-2.5 px-3 text-right font-bold">Weekly</th>
                   <th class="py-2.5 px-3 text-right font-bold">Actual</th>
-                  <th class="py-2.5 px-3 text-right font-bold">Remaining (FN)</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Rem (Wk)</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Rem (Fn)</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200 bg-white">
@@ -728,35 +755,38 @@
                   <td class="py-2.5 px-3 font-bold text-slate-900">
                     <div class="flex items-center gap-2">
                       <span class="w-7 h-7 rounded-lg bg-purple-100 border border-purple-200 text-purple-700 flex items-center justify-center">💳</span>
-                      <span>Spending Account</span>
+                      <span>Spending</span>
                     </div>
                   </td>
                   <td id="amy-acc-spend-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="amy-acc-spend-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="amy-acc-spend-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="amy-acc-spend-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="amy-acc-spend-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                  <td id="amy-acc-spend-rem-wk" class="py-2.5 px-3 text-right font-bold text-indigo-700">$0.00</td>
+                  <td id="amy-acc-spend-rem-fn" class="py-2.5 px-3 text-right font-bold text-blue-700">$0.00</td>
                 </tr>
                 <tr>
                   <td class="py-2.5 px-3 font-bold text-slate-900">
                     <div class="flex items-center gap-2">
                       <span class="w-7 h-7 rounded-lg bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center">🧾</span>
-                      <span>Bills Account</span>
+                      <span>Bills</span>
                     </div>
                   </td>
                   <td id="amy-acc-bills-mo" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="amy-acc-bills-fn" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="amy-acc-bills-wk" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="amy-acc-bills-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="amy-acc-bills-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                  <td id="amy-acc-bills-rem-wk" class="py-2.5 px-3 text-right font-bold text-indigo-700">$0.00</td>
+                  <td id="amy-acc-bills-rem-fn" class="py-2.5 px-3 text-right font-bold text-blue-700">$0.00</td>
                 </tr>
                 <tr class="font-bold bg-pink-50/80 text-slate-900 border-t-2 border-pink-200">
-                  <td class="py-2.5 px-3">Total Amy's Accounts</td>
+                  <td class="py-2.5 px-3">Total Accounts</td>
                   <td id="amy-acc-tot-mo" class="py-2.5 px-3 text-right">$0.00</td>
                   <td id="amy-acc-tot-fn" class="py-2.5 px-3 text-right">$0.00</td>
                   <td id="amy-acc-tot-wk" class="py-2.5 px-3 text-right">$0.00</td>
                   <td id="amy-acc-tot-act" class="py-2.5 px-3 text-right">$0.00</td>
-                  <td id="amy-acc-tot-rem" class="py-2.5 px-3 text-right text-emerald-700">$0.00</td>
+                  <td id="amy-acc-tot-rem-wk" class="py-2.5 px-3 text-right text-indigo-700">$0.00</td>
+                  <td id="amy-acc-tot-rem-fn" class="py-2.5 px-3 text-right text-blue-700">$0.00</td>
                 </tr>
               </tbody>
             </table>
@@ -770,7 +800,7 @@
               <thead class="text-slate-700 border-b border-blue-200 uppercase text-[11px] bg-blue-100/60">
                 <tr>
                   <th class="py-2.5 px-3 font-bold">Frequency</th>
-                  <th class="py-2.5 px-3 text-right font-bold">Budgeted Expenses</th>
+                  <th class="py-2.5 px-3 text-right font-bold">Budgeted</th>
                   <th class="py-2.5 px-3 text-right font-bold">Logged Spend</th>
                   <th class="py-2.5 px-3 text-right font-bold">Remaining</th>
                 </tr>
@@ -780,13 +810,13 @@
                   <td class="py-2.5 px-3 font-bold text-slate-900">⏱️ Weekly</td>
                   <td id="amy-freq-wk-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="amy-freq-wk-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="amy-freq-wk-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                  <td id="amy-freq-wk-rem" class="py-2.5 px-3 text-right font-bold text-indigo-700">$0.00</td>
                 </tr>
                 <tr>
                   <td class="py-2.5 px-3 font-bold text-slate-900">📅 Fortnightly</td>
                   <td id="amy-freq-fn-exp" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
                   <td id="amy-freq-fn-act" class="py-2.5 px-3 text-right font-medium text-slate-700">$0.00</td>
-                  <td id="amy-freq-fn-rem" class="py-2.5 px-3 text-right font-bold text-emerald-700">$0.00</td>
+                  <td id="amy-freq-fn-rem" class="py-2.5 px-3 text-right font-bold text-blue-700">$0.00</td>
                 </tr>
                 <tr>
                   <td class="py-2.5 px-3 font-bold text-slate-900">🗓️ Monthly</td>
@@ -812,7 +842,7 @@
       <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
         <div class="rounded-xl mb-5 border border-indigo-200 bg-gradient-to-r from-indigo-50 via-blue-50 to-white p-5">
           <h2 class="text-base sm:text-lg font-extrabold text-slate-900">🧾 Joint Household Expense Log</h2>
-          <p class="text-xs text-slate-600 font-medium mt-0.5">Log joint purchases below to automatically update Joint Dashboard actual spend and remaining surplus.</p>
+          <p class="text-xs text-slate-600 font-medium mt-0.5">Log joint purchases below to automatically update Joint Dashboard actual spend.</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
@@ -833,7 +863,7 @@
                 <th class="py-3 px-3 font-bold min-w-[150px]">Category</th>
                 <th class="py-3 px-3 font-bold min-w-[160px]">Description</th>
                 <th class="py-3 px-3 text-right font-bold min-w-[100px]">Amount</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[90px]">Action</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[120px]">Actions</th>
               </tr>
             </thead>
             <tbody id="hh-log-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -875,7 +905,7 @@
                 <th class="py-3 px-3 font-bold min-w-[150px]">Category</th>
                 <th class="py-3 px-3 font-bold min-w-[160px]">Description</th>
                 <th class="py-3 px-3 text-right font-bold min-w-[100px]">Amount</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[90px]">Action</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[120px]">Actions</th>
               </tr>
             </thead>
             <tbody id="liam-log-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -917,7 +947,7 @@
                 <th class="py-3 px-3 font-bold min-w-[150px]">Category</th>
                 <th class="py-3 px-3 font-bold min-w-[160px]">Description</th>
                 <th class="py-3 px-3 text-right font-bold min-w-[100px]">Amount</th>
-                <th class="py-3 px-3 text-right font-bold min-w-[90px]">Action</th>
+                <th class="py-3 px-3 text-right font-bold min-w-[120px]">Actions</th>
               </tr>
             </thead>
             <tbody id="amy-log-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -990,6 +1020,44 @@
     </div>
   </div>
 
+  <!-- ==================== CUSTOM EDIT EXPENSE MODAL ==================== -->
+  <div id="edit-expense-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 class="text-base font-extrabold text-slate-900">✏️ Edit Logged Expense</h3>
+        <button onclick="closeEditExpenseModal()" class="text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Date</label>
+          <input id="modal-exp-date" type="date" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Category</label>
+          <select id="modal-exp-cat" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-600"></select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Description</label>
+          <input id="modal-exp-desc" type="text" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Amount ($)</label>
+          <input id="modal-exp-amt" type="number" step="0.01" onwheel="this.blur()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-3 border-t border-slate-200 gap-2">
+        <button onclick="closeEditExpenseModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">
+          Cancel
+        </button>
+        <button onclick="saveEditExpenseModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm">
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     /* ==========================================================
        FIREBASE CONFIGURATION (CLOUD-ONLY SYNC)
@@ -1030,7 +1098,7 @@
 
     // Default Liam's Categories
     const defaultLiamCategories = [
-      { id: 'p-2', name: 'Loan Repayments', account: 'Bills', monthly: 780.00, icon: '💳' },
+      { id: 'p-2', name: 'Debt Repayments Etienne', account: 'Bills', monthly: 780.00, icon: '💳' },
       { id: 'p-3', name: 'Personal Dining, Coffee & Social', account: 'Spending', monthly: 650.00, icon: '☕' },
       { id: 'p-4', name: 'Health, Gym & Medical Insurance', account: 'Bills', monthly: 545.00, icon: '💪' },
       { id: 'p-5', name: 'Petrol', account: 'Spending', monthly: 542.00, icon: '⛽' },
@@ -1056,11 +1124,15 @@
     let amyExpenses = [];
     let liamIncome = 3400.00;
     let amyIncome = 1585.00;
+    let savingsBalance = 0.00;
 
     // Modal & Undo state
     let activeEditType = null;
     let activeEditIdx = null;
     let lastDeletedCategory = null;
+    let activeEditExpType = null;
+    let activeEditExpId = null;
+    let lastDeletedExpense = null;
 
     document.getElementById('global-month-selector').value = currentMonth;
     document.getElementById('hh-log-date').value = currentMonth + '-01';
@@ -1099,6 +1171,7 @@
         amy_expenses: amyExpenses,
         liam_income: document.getElementById('liam-baseline').value,
         amy_income: document.getElementById('amy-baseline').value,
+        savings_balance: savingsBalance,
         selected_month: currentMonth
       };
 
@@ -1143,6 +1216,11 @@
           amyIncome = 1585.00;
         }
         document.getElementById('amy-baseline').value = amyIncome.toFixed(2);
+
+        if (val.savings_balance !== undefined) {
+          savingsBalance = parseFloat(val.savings_balance) || 0;
+        }
+        document.getElementById('savings-tally-display').textContent = fmt(savingsBalance);
 
         if (val.selected_month) {
           currentMonth = val.selected_month;
@@ -1203,6 +1281,22 @@
       });
     }
 
+    function updateSavingsTally(op) {
+      const input = document.getElementById('extra-money-input');
+      const amt = parseFloat(input.value) || 0;
+      if (amt <= 0) return;
+
+      if (op === 'add') {
+        savingsBalance += amt;
+      } else {
+        savingsBalance -= amt;
+      }
+      
+      document.getElementById('savings-tally-display').textContent = fmt(savingsBalance);
+      input.value = '';
+      saveData();
+    }
+
     // Render Joint Household Table & Sub-Category Totals Breakdown
     function renderHousehold() {
       const tbody = document.getElementById('hh-category-tbody');
@@ -1219,7 +1313,7 @@
       if (hhCategories.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="py-8 text-center text-slate-500 font-medium bg-white">
+            <td colspan="9" class="py-8 text-center text-slate-500 font-medium bg-white">
               No joint categories added yet. Use the "+ Add Category" bar above to add one.
             </td>
           </tr>
@@ -1230,7 +1324,10 @@
           const fn = (mo * 12) / 26;
           const wk = (mo * 12) / 52;
           const actual = filteredHhExp.filter(e => e.cat === cat.name).reduce((s, e) => s + Number(e.amt || 0), 0);
-          const rem = mo - actual;
+          
+          const remWk = wk - actual;
+          const remFn = fn - actual;
+          const remMo = mo - actual;
 
           totMo += mo;
           totFn += fn;
@@ -1273,21 +1370,23 @@
               </td>
               <td class="py-2.5 px-2.5 text-right">
                 <input type="number" step="0.01" value="${mo.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('hh', ${idx}, 'mo', this.value)"
-                  class="w-24 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+                  class="w-20 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
               </td>
               <td class="py-2.5 px-2.5 text-right">
                 <input type="number" step="0.01" value="${fn.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('hh', ${idx}, 'fn', this.value)"
-                  class="w-24 bg-blue-50/60 border border-blue-200 rounded-lg px-2 py-1 text-right font-semibold text-blue-800 focus:outline-none focus:border-blue-600" />
+                  class="w-20 bg-blue-50/60 border border-blue-200 rounded-lg px-2 py-1 text-right font-semibold text-blue-800 focus:outline-none focus:border-blue-600" />
               </td>
               <td class="py-2.5 px-2.5 text-right">
                 <input type="number" step="0.01" value="${wk.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('hh', ${idx}, 'wk', this.value)"
-                  class="w-24 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 text-right font-semibold text-indigo-800 focus:outline-none focus:border-blue-600" />
+                  class="w-20 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 text-right font-semibold text-indigo-800 focus:outline-none focus:border-blue-600" />
               </td>
               <td class="py-2.5 px-2.5 text-right font-semibold text-slate-700 whitespace-nowrap">${fmt(actual)}</td>
-              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${rem >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(rem)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${remWk >= 0 ? 'text-indigo-700' : 'text-rose-600'}">${fmt(remWk)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${remFn >= 0 ? 'text-blue-700' : 'text-rose-600'}">${fmt(remFn)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${remMo >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(remMo)}</td>
               <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
-                <button type="button" onclick="openEditModal('hh', ${idx})" class="text-blue-700 hover:bg-blue-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-200">Edit</button>
-                <button type="button" onclick="deleteCategory('hh', ${idx})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200">Delete</button>
+                <button type="button" onclick="openEditModal('hh', ${idx})" class="text-blue-700 hover:bg-blue-100 text-xs font-semibold px-2 py-1.5 rounded-lg bg-blue-50 border border-blue-200">Edit</button>
+                <button type="button" onclick="deleteCategory('hh', ${idx})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2 py-1.5 rounded-lg bg-rose-50 border border-rose-200">Del</button>
               </td>
             </tr>
           `;
@@ -1299,14 +1398,16 @@
       if (subcatList.length === 0) {
         subcatTbody.innerHTML = `
           <tr>
-            <td colspan="7" class="py-6 text-center text-slate-500 font-medium bg-white">
+            <td colspan="9" class="py-6 text-center text-slate-500 font-medium bg-white">
               No sub-categories available.
             </td>
           </tr>
         `;
       } else {
         subcatList.forEach(sc => {
-          const scRem = sc.mo - sc.actual;
+          const scRemWk = sc.wk - sc.actual;
+          const scRemFn = sc.fn - sc.actual;
+          const scRemMo = sc.mo - sc.actual;
           const pctShare = totMo > 0 ? ((sc.mo / totMo) * 100).toFixed(1) + '%' : '0.0%';
           const leadIcon = sc.icons.length > 0 ? sc.icons[0] : '📂';
 
@@ -1326,26 +1427,31 @@
               <td class="py-2.5 px-2.5 text-right font-semibold text-blue-700 whitespace-nowrap">${fmt(sc.fn)}</td>
               <td class="py-2.5 px-2.5 text-right font-semibold text-indigo-700 whitespace-nowrap">${fmt(sc.wk)}</td>
               <td class="py-2.5 px-2.5 text-right font-semibold text-slate-700 whitespace-nowrap">${fmt(sc.actual)}</td>
-              <td class="py-2.5 px-3 text-right font-bold whitespace-nowrap ${scRem >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(scRem)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${scRemWk >= 0 ? 'text-indigo-700' : 'text-rose-600'}">${fmt(scRemWk)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${scRemFn >= 0 ? 'text-blue-700' : 'text-rose-600'}">${fmt(scRemFn)}</td>
+              <td class="py-2.5 px-3 text-right font-bold whitespace-nowrap ${scRemMo >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(scRemMo)}</td>
             </tr>
           `;
         });
       }
 
-      const totRem = totMo - totAct;
       document.getElementById('hh-tot-mo').textContent = fmt(totMo);
       document.getElementById('hh-tot-fn').textContent = fmt(totFn);
       document.getElementById('hh-tot-wk').textContent = fmt(totWk);
       document.getElementById('hh-tot-act').textContent = fmt(totAct);
-      document.getElementById('hh-tot-rem').textContent = fmt(totRem);
+      document.getElementById('hh-tot-rem-wk').textContent = fmt(totWk - totAct);
+      document.getElementById('hh-tot-rem-fn').textContent = fmt(totFn - totAct);
+      document.getElementById('hh-tot-rem-mo').textContent = fmt(totMo - totAct);
 
       document.getElementById('hh-subcat-tot-mo').textContent = fmt(totMo);
       document.getElementById('hh-subcat-tot-fn').textContent = fmt(totFn);
       document.getElementById('hh-subcat-tot-wk').textContent = fmt(totWk);
       document.getElementById('hh-subcat-tot-act').textContent = fmt(totAct);
-      document.getElementById('hh-subcat-tot-rem').textContent = fmt(totRem);
+      document.getElementById('hh-subcat-tot-rem-wk').textContent = fmt(totWk - totAct);
+      document.getElementById('hh-subcat-tot-rem-fn').textContent = fmt(totFn - totAct);
+      document.getElementById('hh-subcat-tot-rem-mo').textContent = fmt(totMo - totAct);
 
-      document.getElementById('hh-kpi-monthly').textContent = fmt(totRem);
+      document.getElementById('hh-kpi-monthly').textContent = fmt(totMo);
       document.getElementById('hh-kpi-fortnightly').textContent = fmt(totFn);
       document.getElementById('hh-kpi-weekly').textContent = fmt(totWk);
 
@@ -1405,7 +1511,7 @@
       if (categories.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="py-8 text-center text-slate-500 font-medium bg-white">
+            <td colspan="9" class="py-8 text-center text-slate-500 font-medium bg-white">
               No categories added yet. Use the "+ Add Category" bar above to create categories.
             </td>
           </tr>
@@ -1416,7 +1522,10 @@
           const fn = (mo * 12) / 26;
           const wk = (mo * 12) / 52;
           const actual = filteredExp.filter(e => e.cat === cat.name).reduce((s, e) => s + Number(e.amt || 0), 0);
-          const rem = fn - actual;
+          
+          const remWk = wk - actual;
+          const remFn = fn - actual;
+          const remMo = mo - actual;
 
           totMo += mo;
           totFn += fn;
@@ -1446,58 +1555,62 @@
               </td>
               <td class="py-2.5 px-2.5 text-right">
                 <input type="number" step="0.01" value="${mo.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('${person}', ${idx}, 'mo', this.value)"
-                  class="w-24 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
+                  class="w-20 bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-right font-semibold text-slate-900 focus:outline-none focus:border-blue-600" />
               </td>
               <td class="py-2.5 px-2.5 text-right">
                 <input type="number" step="0.01" value="${fn.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('${person}', ${idx}, 'fn', this.value)"
-                  class="w-24 bg-blue-50/60 border border-blue-200 rounded-lg px-2 py-1 text-right font-semibold text-blue-800 focus:outline-none focus:border-blue-600" />
+                  class="w-20 bg-blue-50/60 border border-blue-200 rounded-lg px-2 py-1 text-right font-semibold text-blue-800 focus:outline-none focus:border-blue-600" />
               </td>
               <td class="py-2.5 px-2.5 text-right">
                 <input type="number" step="0.01" value="${wk.toFixed(2)}" onwheel="this.blur()" onchange="updateCatAmount('${person}', ${idx}, 'wk', this.value)"
-                  class="w-24 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 text-right font-semibold text-indigo-800 focus:outline-none focus:border-blue-600" />
+                  class="w-20 bg-indigo-50/60 border border-indigo-200 rounded-lg px-2 py-1 text-right font-semibold text-indigo-800 focus:outline-none focus:border-blue-600" />
               </td>
               <td class="py-2.5 px-2.5 text-right font-semibold text-slate-700 whitespace-nowrap">${fmt(actual)}</td>
-              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${rem >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(rem)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${remWk >= 0 ? 'text-indigo-700' : 'text-rose-600'}">${fmt(remWk)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${remFn >= 0 ? 'text-blue-700' : 'text-rose-600'}">${fmt(remFn)}</td>
+              <td class="py-2.5 px-2.5 text-right font-bold whitespace-nowrap ${remMo >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${fmt(remMo)}</td>
               <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
-                <button type="button" onclick="openEditModal('${person}', ${idx})" class="text-blue-700 hover:bg-blue-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-200">Edit</button>
-                <button type="button" onclick="deleteCategory('${person}', ${idx})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-50 border border-rose-200">Delete</button>
+                <button type="button" onclick="openEditModal('${person}', ${idx})" class="text-blue-700 hover:bg-blue-100 text-xs font-semibold px-2 py-1.5 rounded-lg bg-blue-50 border border-blue-200">Edit</button>
+                <button type="button" onclick="deleteCategory('${person}', ${idx})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2 py-1.5 rounded-lg bg-rose-50 border border-rose-200">Del</button>
               </td>
             </tr>
           `;
         });
       }
 
-      const totRemFn = totFn - totAct;
-
       document.getElementById(person + '-tot-mo').textContent = fmt(totMo);
       document.getElementById(person + '-tot-fn').textContent = fmt(totFn);
       document.getElementById(person + '-tot-wk').textContent = fmt(totWk);
       document.getElementById(person + '-tot-act').textContent = fmt(totAct);
-      document.getElementById(person + '-tot-rem').textContent = fmt(totRemFn);
+      document.getElementById(person + '-tot-rem-wk').textContent = fmt(totWk - totAct);
+      document.getElementById(person + '-tot-rem-fn').textContent = fmt(totFn - totAct);
+      document.getElementById(person + '-tot-rem-mo').textContent = fmt(totMo - totAct);
 
       document.getElementById(person + '-kpi-mo').textContent = fmt(totMo);
       document.getElementById(person + '-kpi-fn').textContent = fmt(totFn);
       document.getElementById(person + '-kpi-wk').textContent = fmt(totWk);
       document.getElementById(person + '-kpi-act').textContent = fmt(totAct);
-      document.getElementById(person + '-kpi-rem').textContent = fmt(totRemFn);
 
       document.getElementById(person + '-acc-spend-mo').textContent = fmt(spendMo);
       document.getElementById(person + '-acc-spend-fn').textContent = fmt(spendFn);
       document.getElementById(person + '-acc-spend-wk').textContent = fmt(spendWk);
       document.getElementById(person + '-acc-spend-act').textContent = fmt(spendAct);
-      document.getElementById(person + '-acc-spend-rem').textContent = fmt(spendFn - spendAct);
+      document.getElementById(person + '-acc-spend-rem-wk').textContent = fmt(spendWk - spendAct);
+      document.getElementById(person + '-acc-spend-rem-fn').textContent = fmt(spendFn - spendAct);
 
       document.getElementById(person + '-acc-bills-mo').textContent = fmt(billsMo);
       document.getElementById(person + '-acc-bills-fn').textContent = fmt(billsFn);
       document.getElementById(person + '-acc-bills-wk').textContent = fmt(billsWk);
       document.getElementById(person + '-acc-bills-act').textContent = fmt(billsAct);
-      document.getElementById(person + '-acc-bills-rem').textContent = fmt(billsFn - billsAct);
+      document.getElementById(person + '-acc-bills-rem-wk').textContent = fmt(billsWk - billsAct);
+      document.getElementById(person + '-acc-bills-rem-fn').textContent = fmt(billsFn - billsAct);
 
       document.getElementById(person + '-acc-tot-mo').textContent = fmt(totMo);
       document.getElementById(person + '-acc-tot-fn').textContent = fmt(totFn);
       document.getElementById(person + '-acc-tot-wk').textContent = fmt(totWk);
       document.getElementById(person + '-acc-tot-act').textContent = fmt(totAct);
-      document.getElementById(person + '-acc-tot-rem').textContent = fmt(totRemFn);
+      document.getElementById(person + '-acc-tot-rem-wk').textContent = fmt(totWk - totAct);
+      document.getElementById(person + '-acc-tot-rem-fn').textContent = fmt(totFn - totAct);
 
       const yrExp = totFn * 26;
       document.getElementById(person + '-freq-wk-exp').textContent = fmt(totWk);
@@ -1743,6 +1856,7 @@
         : `<option value="General">📌 Add a category on Amy's Dashboard first</option>`;
     }
 
+    // EXPENSE FUNCTIONS
     function addExpense(type) {
       const prefix = type + '-log';
       const date = document.getElementById(prefix + '-date').value || (currentMonth + '-01');
@@ -1760,14 +1874,93 @@
     }
 
     function deleteExpense(type, id) {
-      if (type === 'hh') {
-        hhExpenses = hhExpenses.filter(e => e.id !== id);
-      } else if (type === 'liam') {
-        liamExpenses = liamExpenses.filter(e => e.id !== id);
-      } else {
-        amyExpenses = amyExpenses.filter(e => e.id !== id);
+      let list = getExpenseList(type);
+      const itemIdx = list.findIndex(e => e.id === id);
+      
+      if (itemIdx > -1) {
+        const removed = list.splice(itemIdx, 1)[0];
+        lastDeletedExpense = { type, item: removed };
+        
+        const banner = document.getElementById('undo-expense-banner');
+        document.getElementById('undo-exp-name').textContent = `${removed.desc} (${fmt(removed.amt)})`;
+        banner.classList.remove('hidden');
+        
+        refreshViews(type);
       }
+    }
+
+    function undoDeleteExpense() {
+      if (!lastDeletedExpense) return;
+      const { type, item } = lastDeletedExpense;
+      const list = getExpenseList(type);
+      list.push(item);
+      lastDeletedExpense = null;
+      document.getElementById('undo-expense-banner').classList.add('hidden');
       refreshViews(type);
+    }
+
+    function dismissUndoExpense() {
+      lastDeletedExpense = null;
+      document.getElementById('undo-expense-banner').classList.add('hidden');
+    }
+
+    // EDIT EXPENSE LOGIC
+    function openEditExpenseModal(type, id) {
+      const list = getExpenseList(type);
+      const exp = list.find(e => e.id === id);
+      if (!exp) return;
+
+      activeEditExpType = type;
+      activeEditExpId = id;
+
+      document.getElementById('modal-exp-date').value = exp.date;
+      document.getElementById('modal-exp-desc').value = exp.desc;
+      document.getElementById('modal-exp-amt').value = exp.amt;
+
+      // Populate Categories in select specific to this user type
+      const catList = getCategoryList(type);
+      const select = document.getElementById('modal-exp-cat');
+      select.innerHTML = catList.map(c => 
+        `<option value="${escAttr(c.name)}" ${c.name === exp.cat ? 'selected' : ''}>${c.icon || '📌'} ${c.name}</option>`
+      ).join('');
+      
+      // Fallback if category was deleted but expense remains
+      if (!catList.find(c => c.name === exp.cat)) {
+        select.innerHTML += `<option value="${escAttr(exp.cat)}" selected>📌 ${exp.cat} (Deleted)</option>`;
+      }
+
+      document.getElementById('edit-expense-modal').classList.remove('hidden');
+    }
+
+    function closeEditExpenseModal() {
+      activeEditExpType = null;
+      activeEditExpId = null;
+      document.getElementById('edit-expense-modal').classList.add('hidden');
+    }
+
+    function saveEditExpenseModal() {
+      if (!activeEditExpType || !activeEditExpId) return;
+      
+      const list = getExpenseList(activeEditExpType);
+      const exp = list.find(e => e.id === activeEditExpId);
+      if (!exp) {
+        closeEditExpenseModal();
+        return;
+      }
+
+      const date = document.getElementById('modal-exp-date').value;
+      const cat = document.getElementById('modal-exp-cat').value;
+      const desc = document.getElementById('modal-exp-desc').value;
+      const amt = parseFloat(document.getElementById('modal-exp-amt').value) || 0;
+
+      if (date) exp.date = date;
+      if (cat) exp.cat = cat;
+      if (desc) exp.desc = desc;
+      exp.amt = amt;
+
+      const typeToRefresh = activeEditExpType;
+      closeEditExpenseModal();
+      refreshViews(typeToRefresh);
     }
 
     function renderExpenseLogs(type) {
@@ -1795,8 +1988,9 @@
             </td>
             <td class="py-2.5 px-3 font-medium text-slate-700">${item.desc}</td>
             <td class="py-2.5 px-3 text-right font-bold text-slate-900 whitespace-nowrap">${fmt(item.amt)}</td>
-            <td class="py-2.5 px-3 text-right whitespace-nowrap">
-              <button type="button" onclick="deleteExpense('${type}', ${item.id})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2.5 py-1 rounded bg-rose-50 border border-rose-200">Remove</button>
+            <td class="py-2.5 px-3 text-right whitespace-nowrap space-x-1">
+              <button type="button" onclick="openEditExpenseModal('${type}', ${item.id})" class="text-blue-700 hover:bg-blue-100 text-xs font-semibold px-2 py-1 rounded bg-blue-50 border border-blue-200">Edit</button>
+              <button type="button" onclick="deleteExpense('${type}', ${item.id})" class="text-rose-700 hover:bg-rose-100 text-xs font-semibold px-2 py-1 rounded bg-rose-50 border border-rose-200">Remove</button>
             </td>
           </tr>
         `).join('');
